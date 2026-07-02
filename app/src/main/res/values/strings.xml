@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Galaxy Watch Tweaker</string>
+    <string name="module_description">Tunes Galaxy Watch companion, Samsung Health Monitor, and connection recovery behavior on Honor MagicOS.</string>
+    <string-array name="xposedscope">
+        <item>android</item>
+        <item>system</item>
+        <item>com.google.android.wearable.app.cn</item>
+        <item>com.samsung.android.app.watchmanager</item>
+        <item>com.samsung.wearable.watch7plugin</item>
+        <item>com.samsung.android.shealthmonitor</item>
+    </string-array>
+    <string name="tab_hooks">Hooks</string>
+    <string name="tab_profile">Profile</string>
+    <string name="tab_versions">Versions</string>
+    <string name="section_samsung_health_monitor">Samsung Health Monitor</string>
+    <string name="section_watch_companion">Watch Companion</string>
+    <string name="section_connection_recovery">Connection Recovery</string>
+    <string name="section_spoof_profile">Spoof profile</string>
+    <string name="section_version_matrix">Version matrix</string>
+    <string name="shm_patch_title">SHM region and device spoof</string>
+    <string name="shm_patch_description">Presents Samsung Health Monitor as a supported Samsung US phone for blood pressure and ECG.</string>
+    <string name="companion_identity_title">Companion Identity</string>
+    <string name="companion_identity_description">Spoofs phone identity fields written by Watch Plugin and Google Wear companion paths.</string>
+    <string name="capability_exchange_title">Capability exchange spoof</string>
+    <string name="capability_exchange_description">Rewrites Watch Plugin feature exchange fields such as vender, modelNumber, and csc.</string>
+    <string name="connection_recovery_title">Companion connection recovery</string>
+    <string name="connection_recovery_description">Nudges Android CompanionDeviceManager when Watch Plugin misses the connected event.</string>
+    <string name="field_manufacturer">Manufacturer</string>
+    <string name="field_brand">Brand</string>
+    <string name="field_model">Model</string>
+    <string name="field_device">Device</string>
+    <string name="field_product">Product</string>
+    <string name="field_fingerprint">Fingerprint</string>
+    <string name="field_sales_code">Sales code</string>
+    <string name="field_country">Country ISO</string>
+    <string name="field_mcc">MCC</string>
+    <string name="field_mnc">MNC</string>
+    <string name="field_operator">Operator</string>
+    <string name="field_operator_name">Operator name</string>
+    <string name="restore_default_profile">Restore S25 Ultra US preset</string>
+    <string name="restart_notice">Restart target apps after changing hook switches or profile fields. Android/system_server recovery changes require a phone reboot.</string>
+    <string name="version_phone_shm">Phone SHM</string>
+    <string name="version_watch_shm">Watch SHM</string>
+    <string name="version_watch_manager">Watch Manager</string>
+    <string name="version_watch_plugin">Watch7 Plugin</string>
+    <string name="version_google_wear">Google Wear</string>
+    <string name="version_unknown">Not detected</string>
+    <string name="version_watch_side_only">Watch-side only</string>
+    <string name="version_supported_hint">Verified baseline: Phone SHM 1.4.6.003 / Watch SHM 1.4.6.003</string>
+</resources>

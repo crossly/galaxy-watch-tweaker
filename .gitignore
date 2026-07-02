@@ -1,0 +1,31 @@
+.gradle/
+build/
+app/build/
+xposed-stubs/build/
+local.properties
+*.iml
+.DS_Store
+
+# Android signing / local artifacts
+*.jks
+*.idsig
+*.apk
+*.ap_
+
+# Reverse engineering / device artifacts
+pulled/
+jadx-out/
+*.dex
+*.odex
+*.vdex
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+
+# Scratch files
+build.log
+docs/plans/
+device-framework/
+private/
+
+# Local code index
+.codegraph

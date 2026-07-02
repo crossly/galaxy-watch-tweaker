@@ -1,0 +1,40 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <queries>
+        <package android:name="com.samsung.android.shealthmonitor" />
+        <package android:name="com.samsung.android.app.watchmanager" />
+        <package android:name="com.samsung.wearable.watch7plugin" />
+        <package android:name="com.google.android.wearable.app.cn" />
+    </queries>
+
+    <application
+        android:allowBackup="false"
+        android:hasCode="true"
+        android:icon="@mipmap/ic_launcher"
+        android:name=".GalaxyWatchTweakerApplication"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:theme="@style/AppTheme">
+        <meta-data
+            android:name="xposedmodule"
+            android:value="true" />
+        <meta-data
+            android:name="xposeddescription"
+            android:value="@string/module_description" />
+        <meta-data
+            android:name="xposedminversion"
+            android:value="93" />
+        <meta-data
+            android:name="xposedscope"
+            android:value="android;system;com.google.android.wearable.app.cn;com.samsung.android.app.watchmanager;com.samsung.wearable.watch7plugin;com.samsung.android.shealthmonitor" />
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

@@ -1,0 +1,163 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+      - "[0-9]*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build signed release APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Make Gradle executable
+        run: chmod +x ./gradlew
+
+      - name: Run unit tests
+        run: ./gradlew :app:testDebugUnitTest
+
+      - name: Resolve release version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_REF_TYPE}" == "tag" && "${GITHUB_REF_NAME}" =~ ^v?([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            major="${BASH_REMATCH[1]}"
+            minor="${BASH_REMATCH[2]}"
+            patch="${BASH_REMATCH[3]}"
+            version_name="${major}.${minor}.${patch}"
+            version_code=$((10#${major} * 10000 + 10#${minor} * 100 + 10#${patch}))
+            echo "version_name=${version_name}" >> "$GITHUB_OUTPUT"
+            echo "version_code=${version_code}" >> "$GITHUB_OUTPUT"
+            echo "is_tag_release=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "version_name=" >> "$GITHUB_OUTPUT"
+            echo "version_code=" >> "$GITHUB_OUTPUT"
+            echo "is_tag_release=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build release APK
+        run: |
+          if [[ "${{ steps.version.outputs.is_tag_release }}" == "true" ]]; then
+            ./gradlew :app:assembleRelease \
+              -PreleaseVersionName="${{ steps.version.outputs.version_name }}" \
+              -PreleaseVersionCode="${{ steps.version.outputs.version_code }}"
+          else
+            ./gradlew :app:assembleRelease
+          fi
+
+      - name: Read APK metadata
+        id: metadata
+        shell: bash
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          from pathlib import Path
+
+          data = json.loads(Path("app/build/outputs/apk/release/output-metadata.json").read_text())
+          element = data["elements"][0]
+          version_name = element["versionName"]
+          version_code = element["versionCode"]
+          normalized_version = version_name.replace("/", "-").replace(" ", "").replace("(", "").replace(")", "")
+          print(f"version_name={version_name}")
+          print(f"version_code={version_code}")
+          print(f"normalized_version={normalized_version}")
+          PY
+
+      - name: Prepare signing keystore
+        id: keystore
+        shell: bash
+        env:
+          RELEASE_KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [[ -n "${RELEASE_KEYSTORE_BASE64}" && -n "${RELEASE_KEYSTORE_PASSWORD}" && -n "${RELEASE_KEY_ALIAS}" && -n "${RELEASE_KEY_PASSWORD}" ]]; then
+            printf '%s' "${RELEASE_KEYSTORE_BASE64}" | tr -d '\r\n\t ' | base64 --decode > release.keystore
+            {
+              echo "keystore=release.keystore"
+              echo "store_password=${RELEASE_KEYSTORE_PASSWORD}"
+              echo "key_alias=${RELEASE_KEY_ALIAS}"
+              echo "key_password=${RELEASE_KEY_PASSWORD}"
+              echo "certificate_source=GitHub Secrets"
+            } >> "$GITHUB_OUTPUT"
+          else
+            keytool -genkeypair \
+              -v \
+              -storetype PKCS12 \
+              -keystore release.keystore \
+              -storepass android \
+              -keypass android \
+              -alias ci-release \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 10000 \
+              -dname "CN=CI Release,O=Samsung Watch Helper,C=US"
+            {
+              echo "keystore=release.keystore"
+              echo "store_password=android"
+              echo "key_alias=ci-release"
+              echo "key_password=android"
+              echo "certificate_source=temporary CI keystore"
+            } >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Sign release APK
+        shell: bash
+        env:
+          KEYSTORE: ${{ steps.keystore.outputs.keystore }}
+          STORE_PASSWORD: ${{ steps.keystore.outputs.store_password }}
+          KEY_ALIAS: ${{ steps.keystore.outputs.key_alias }}
+          KEY_PASSWORD: ${{ steps.keystore.outputs.key_password }}
+          VERSION: ${{ steps.metadata.outputs.normalized_version }}
+        run: |
+          set -euo pipefail
+          UNSIGNED_APK="app/build/outputs/apk/release/app-release-unsigned.apk"
+          SIGNED_APK="app/build/outputs/apk/release/GalaxyWatchTweaker-${VERSION}-release-signed.apk"
+          "${ANDROID_HOME}/build-tools/35.0.0/apksigner" sign \
+            --ks "${KEYSTORE}" \
+            --ks-pass "pass:${STORE_PASSWORD}" \
+            --ks-key-alias "${KEY_ALIAS}" \
+            --key-pass "pass:${KEY_PASSWORD}" \
+            --out "${SIGNED_APK}" \
+            "${UNSIGNED_APK}"
+          "${ANDROID_HOME}/build-tools/35.0.0/apksigner" verify --verbose --print-certs "${SIGNED_APK}"
+          echo "SIGNED_APK=${SIGNED_APK}" >> "$GITHUB_ENV"
+
+      - name: Upload signed release APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: galaxy-watch-tweaker-release
+          path: ${{ env.SIGNED_APK }}
+          if-no-files-found: error
+
+      - name: Publish GitHub Release
+        if: steps.version.outputs.is_tag_release == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.SIGNED_APK }}
+          generate_release_notes: true
+          body: |
+            Version: `${{ steps.metadata.outputs.version_name }}`
+            Version code: `${{ steps.metadata.outputs.version_code }}`
+            Signing: `${{ steps.keystore.outputs.certificate_source }}`

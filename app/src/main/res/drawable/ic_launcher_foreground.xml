@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- connection halo -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M27,53a27,27 0,0 1,54 0"
+        android:strokeColor="#67E8F9"
+        android:strokeLineCap="round"
+        android:strokeWidth="3" />
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M33,53a21,21 0,0 1,42 0"
+        android:strokeColor="#BAE6FD"
+        android:strokeAlpha="0.72"
+        android:strokeLineCap="round"
+        android:strokeWidth="2.5" />
+
+    <!-- smartwatch straps -->
+    <path
+        android:fillColor="#E0F2FE"
+        android:pathData="M42,15h24c3.31,0 6,2.69 6,6v10H36V21c0,-3.31 2.69,-6 6,-6z" />
+    <path
+        android:fillColor="#E0F2FE"
+        android:pathData="M36,77h36v10c0,3.31 -2.69,6 -6,6H42c-3.31,0 -6,-2.69 -6,-6z" />
+
+    <!-- smartwatch body -->
+    <path
+        android:fillColor="#F8FAFC"
+        android:pathData="M34,27h40c6.08,0 11,4.92 11,11v32c0,6.08 -4.92,11 -11,11H34c-6.08,0 -11,-4.92 -11,-11V38c0,-6.08 4.92,-11 11,-11z" />
+    <path
+        android:fillColor="#0F172A"
+        android:pathData="M37,33h34c4.42,0 8,3.58 8,8v26c0,4.42 -3.58,8 -8,8H37c-4.42,0 -8,-3.58 -8,-8V41c0,-4.42 3.58,-8 8,-8z" />
+
+    <!-- watch crown -->
+    <path
+        android:fillColor="#BAE6FD"
+        android:pathData="M85,47h4c1.66,0 3,1.34 3,3v8c0,1.66 -1.34,3 -3,3h-4z" />
+
+    <!-- connection nodes -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M43,56L53,47L65,61"
+        android:strokeColor="#67E8F9"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="4" />
+    <path
+        android:fillColor="#22D3EE"
+        android:pathData="M39,56a5,5 0,1 0,10 0a5,5 0,1 0,-10 0" />
+    <path
+        android:fillColor="#E0F2FE"
+        android:pathData="M49,47a5,5 0,1 0,10 0a5,5 0,1 0,-10 0" />
+    <path
+        android:fillColor="#5EEAD4"
+        android:pathData="M61,61a5,5 0,1 0,10 0a5,5 0,1 0,-10 0" />
+</vector>
