@@ -16,6 +16,7 @@
     <string name="section_samsung_health_monitor">Samsung Health Monitor</string>
     <string name="section_watch_companion">Watch Companion</string>
     <string name="section_connection_recovery">Connection Recovery</string>
+    <string name="section_watch_display_name">Watch display name</string>
     <string name="section_spoof_profile">Spoof profile</string>
     <string name="section_version_matrix">Version matrix</string>
     <string name="shm_patch_title">SHM region and device spoof</string>
@@ -26,6 +27,9 @@
     <string name="capability_exchange_description">Rewrites Watch Plugin feature exchange fields such as vender, modelNumber, and csc.</string>
     <string name="connection_recovery_title">Companion connection recovery</string>
     <string name="connection_recovery_description">Nudges Android CompanionDeviceManager when Watch Plugin misses the connected event.</string>
+    <string name="watch_alias_override_title">Override display name</string>
+    <string name="watch_alias_override_description">Changes the name shown by Galaxy Wearable without touching the fixed product name.</string>
+    <string name="field_watch_alias_name">Display name</string>
     <string name="field_manufacturer">Manufacturer</string>
     <string name="field_brand">Brand</string>
     <string name="field_model">Model</string>

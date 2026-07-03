@@ -10,6 +10,7 @@ The Android package is `dev.ricky.galaxywatchtweaker`, so it can install side by
 - Toggle Watch companion identity spoofing for Watch Plugin and Google Wear companion paths.
 - Toggle Watch capability exchange spoofing for Watch7 Plugin feature data.
 - Toggle Android CompanionDeviceManager connection recovery in `system_server`.
+- Override the watch display name shown by Galaxy Wearable without changing the fixed product name.
 - Edit the spoofed Samsung phone profile from the app UI.
 - Restore the built-in Galaxy S25 Ultra US preset.
 - View detected package versions for phone SHM, Watch SHM, Watch Manager, Watch7 Plugin, and Google Wear.

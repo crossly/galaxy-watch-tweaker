@@ -30,6 +30,7 @@ Galaxy Watch Tweaker is an operational Android utility for owners running Samsun
 - `SettingsGroup`: titled full-width surface containing related rows.
 - `ToggleListItem`: row with label, description, and switch; the full row toggles.
 - `ProfileTextField`: labeled editable text field for spoof profile values.
+- `ProfileTextField`: also used for the watch display-name override value.
 - `VersionListItem`: package/version row with fallback text when unavailable.
 
 ## 6. States

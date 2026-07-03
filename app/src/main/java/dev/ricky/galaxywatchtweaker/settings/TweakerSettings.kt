@@ -5,6 +5,8 @@ data class TweakerSettings(
     val companionIdentityEnabled: Boolean = TweakerPreferences.DEFAULT_COMPANION_IDENTITY_ENABLED,
     val capabilityExchangeEnabled: Boolean = TweakerPreferences.DEFAULT_CAPABILITY_EXCHANGE_ENABLED,
     val connectionRecoveryEnabled: Boolean = TweakerPreferences.DEFAULT_CONNECTION_RECOVERY_ENABLED,
+    val watchAliasOverrideEnabled: Boolean = TweakerPreferences.DEFAULT_WATCH_ALIAS_OVERRIDE_ENABLED,
+    val watchAliasName: String = TweakerPreferences.DEFAULT_WATCH_ALIAS_NAME,
     val spoofManufacturer: String = TweakerPreferences.DEFAULT_SPOOF_MANUFACTURER,
     val spoofBrand: String = TweakerPreferences.DEFAULT_SPOOF_BRAND,
     val spoofModel: String = TweakerPreferences.DEFAULT_SPOOF_MODEL,

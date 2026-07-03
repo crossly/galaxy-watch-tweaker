@@ -8,6 +8,7 @@
     <string name="section_samsung_health_monitor">健康检测</string>
     <string name="section_watch_companion">手表连接</string>
     <string name="section_connection_recovery">连接恢复</string>
+    <string name="section_watch_display_name">手表名称</string>
     <string name="section_spoof_profile">伪装设备</string>
     <string name="section_version_matrix">版本信息</string>
     <string name="shm_patch_title">解锁血压和心电</string>
@@ -18,6 +19,9 @@
     <string name="capability_exchange_description">向手表发送美版机型和地区信息。</string>
     <string name="connection_recovery_title">自动恢复连接</string>
     <string name="connection_recovery_description">手表连接状态异常时自动刷新系统记录。</string>
+    <string name="watch_alias_override_title">自定义显示名称</string>
+    <string name="watch_alias_override_description">修改 Wearable 中显示的手表名，不改产品名称。</string>
+    <string name="field_watch_alias_name">显示名称</string>
     <string name="field_manufacturer">制造商</string>
     <string name="field_brand">品牌</string>
     <string name="field_model">型号</string>

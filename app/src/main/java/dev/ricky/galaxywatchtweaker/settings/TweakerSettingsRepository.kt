@@ -35,6 +35,10 @@ class TweakerSettingsRepository(context: Context) {
         putBoolean(TweakerPreferences.KEY_CONNECTION_RECOVERY_ENABLED, enabled)
     }
 
+    fun setWatchAliasOverrideEnabled(enabled: Boolean) = update {
+        putBoolean(TweakerPreferences.KEY_WATCH_ALIAS_OVERRIDE_ENABLED, enabled)
+    }
+
     fun setSpoofValue(key: String, value: String) = update {
         putString(key, value)
     }
@@ -66,6 +70,8 @@ class TweakerSettingsRepository(context: Context) {
             putBoolean(TweakerPreferences.KEY_COMPANION_IDENTITY_ENABLED, settings.companionIdentityEnabled)
             putBoolean(TweakerPreferences.KEY_CAPABILITY_EXCHANGE_ENABLED, settings.capabilityExchangeEnabled)
             putBoolean(TweakerPreferences.KEY_CONNECTION_RECOVERY_ENABLED, settings.connectionRecoveryEnabled)
+            putBoolean(TweakerPreferences.KEY_WATCH_ALIAS_OVERRIDE_ENABLED, settings.watchAliasOverrideEnabled)
+            putString(TweakerPreferences.KEY_WATCH_ALIAS_NAME, settings.watchAliasName)
             putString(TweakerPreferences.KEY_SPOOF_MANUFACTURER, settings.spoofManufacturer)
             putString(TweakerPreferences.KEY_SPOOF_BRAND, settings.spoofBrand)
             putString(TweakerPreferences.KEY_SPOOF_MODEL, settings.spoofModel)
@@ -124,6 +130,11 @@ class TweakerSettingsRepository(context: Context) {
                 TweakerPreferences.KEY_CONNECTION_RECOVERY_ENABLED,
                 TweakerPreferences.DEFAULT_CONNECTION_RECOVERY_ENABLED,
             ),
+            watchAliasOverrideEnabled = getBoolean(
+                TweakerPreferences.KEY_WATCH_ALIAS_OVERRIDE_ENABLED,
+                TweakerPreferences.DEFAULT_WATCH_ALIAS_OVERRIDE_ENABLED,
+            ),
+            watchAliasName = profileValue(TweakerPreferences.KEY_WATCH_ALIAS_NAME, TweakerPreferences.DEFAULT_WATCH_ALIAS_NAME),
             spoofManufacturer = profileValue(TweakerPreferences.KEY_SPOOF_MANUFACTURER, TweakerPreferences.DEFAULT_SPOOF_MANUFACTURER),
             spoofBrand = profileValue(TweakerPreferences.KEY_SPOOF_BRAND, TweakerPreferences.DEFAULT_SPOOF_BRAND),
             spoofModel = profileValue(TweakerPreferences.KEY_SPOOF_MODEL, TweakerPreferences.DEFAULT_SPOOF_MODEL),

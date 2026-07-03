@@ -49,6 +49,7 @@ fun GalaxyWatchTweakerApp(viewModel: TweakerSettingsViewModel) {
         onCompanionIdentityChanged = viewModel::setCompanionIdentityEnabled,
         onCapabilityExchangeChanged = viewModel::setCapabilityExchangeEnabled,
         onConnectionRecoveryChanged = viewModel::setConnectionRecoveryEnabled,
+        onWatchAliasOverrideChanged = viewModel::setWatchAliasOverrideEnabled,
         onSpoofValueChanged = viewModel::setSpoofValue,
         onRestoreDefaultProfile = viewModel::restoreDefaultProfile,
     )
@@ -63,6 +64,7 @@ private fun GalaxyWatchTweakerScreen(
     onCompanionIdentityChanged: (Boolean) -> Unit,
     onCapabilityExchangeChanged: (Boolean) -> Unit,
     onConnectionRecoveryChanged: (Boolean) -> Unit,
+    onWatchAliasOverrideChanged: (Boolean) -> Unit,
     onSpoofValueChanged: (String, String) -> Unit,
     onRestoreDefaultProfile: () -> Unit,
 ) {
@@ -138,6 +140,7 @@ private fun GalaxyWatchTweakerScreen(
                     )
                     1 -> profilePage(
                         settings = settings,
+                        onWatchAliasOverrideChanged = onWatchAliasOverrideChanged,
                         onSpoofValueChanged = onSpoofValueChanged,
                         onRestoreDefaultProfile = onRestoreDefaultProfile,
                     )

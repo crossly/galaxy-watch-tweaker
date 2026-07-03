@@ -65,6 +65,9 @@ public final class HookEntry implements IXposedHookLoadPackage {
                 Watch7CapabilityExchangeHook.install(lpparam.classLoader, profile);
                 Watch7CapabilityRefreshHook.install(lpparam.classLoader);
             }
+            if (config.isWatchAliasOverrideEnabled()) {
+                WatchDisplayNameHook.install(lpparam.classLoader, config.watchAliasName());
+            }
             return;
         }
 

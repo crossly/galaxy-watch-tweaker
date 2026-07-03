@@ -8,6 +8,8 @@ public final class TweakerPreferences {
     public static final String KEY_COMPANION_IDENTITY_ENABLED = "companion_identity_enabled";
     public static final String KEY_CAPABILITY_EXCHANGE_ENABLED = "capability_exchange_enabled";
     public static final String KEY_CONNECTION_RECOVERY_ENABLED = "connection_recovery_enabled";
+    public static final String KEY_WATCH_ALIAS_OVERRIDE_ENABLED = "watch_alias_override_enabled";
+    public static final String KEY_WATCH_ALIAS_NAME = "watch_alias_name";
     public static final String KEY_SPOOF_MANUFACTURER = "spoof_manufacturer";
     public static final String KEY_SPOOF_BRAND = "spoof_brand";
     public static final String KEY_SPOOF_MODEL = "spoof_model";
@@ -25,6 +27,8 @@ public final class TweakerPreferences {
     public static final boolean DEFAULT_COMPANION_IDENTITY_ENABLED = true;
     public static final boolean DEFAULT_CAPABILITY_EXCHANGE_ENABLED = true;
     public static final boolean DEFAULT_CONNECTION_RECOVERY_ENABLED = true;
+    public static final boolean DEFAULT_WATCH_ALIAS_OVERRIDE_ENABLED = false;
+    public static final String DEFAULT_WATCH_ALIAS_NAME = "";
     public static final String DEFAULT_SPOOF_MANUFACTURER = "samsung";
     public static final String DEFAULT_SPOOF_BRAND = "samsung";
     public static final String DEFAULT_SPOOF_MODEL = "SM-S938U1";

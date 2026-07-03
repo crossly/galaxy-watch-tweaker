@@ -12,9 +12,27 @@ import dev.ricky.galaxywatchtweaker.settings.TweakerSettings
 
 internal fun LazyListScope.profilePage(
     settings: TweakerSettings,
+    onWatchAliasOverrideChanged: (Boolean) -> Unit,
     onSpoofValueChanged: (String, String) -> Unit,
     onRestoreDefaultProfile: () -> Unit,
 ) {
+    item {
+        SettingsGroup(title = stringResource(R.string.section_watch_display_name)) {
+            ToggleListItem(
+                title = stringResource(R.string.watch_alias_override_title),
+                description = stringResource(R.string.watch_alias_override_description),
+                checked = settings.watchAliasOverrideEnabled,
+                onCheckedChange = onWatchAliasOverrideChanged,
+            )
+            GroupDivider()
+            ProfileTextField(
+                stringResource(R.string.field_watch_alias_name),
+                TweakerPreferences.KEY_WATCH_ALIAS_NAME,
+                settings.watchAliasName,
+                onSpoofValueChanged,
+            )
+        }
+    }
     item {
         SettingsGroup(title = stringResource(R.string.section_spoof_profile)) {
             ProfileTextField(stringResource(R.string.field_manufacturer), TweakerPreferences.KEY_SPOOF_MANUFACTURER, settings.spoofManufacturer, onSpoofValueChanged)

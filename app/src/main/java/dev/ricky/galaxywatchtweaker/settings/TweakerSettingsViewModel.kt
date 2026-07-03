@@ -26,6 +26,8 @@ class TweakerSettingsViewModel(application: Application) : AndroidViewModel(appl
 
     fun setConnectionRecoveryEnabled(enabled: Boolean) = repository.setConnectionRecoveryEnabled(enabled)
 
+    fun setWatchAliasOverrideEnabled(enabled: Boolean) = repository.setWatchAliasOverrideEnabled(enabled)
+
     fun setSpoofValue(key: String, value: String) = repository.setSpoofValue(key, value)
 
     fun restoreDefaultProfile() = repository.restoreDefaultProfile()

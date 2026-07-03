@@ -48,6 +48,23 @@ public final class HookConfig {
                 TweakerPreferences.DEFAULT_CONNECTION_RECOVERY_ENABLED);
     }
 
+    public boolean isWatchAliasOverrideEnabled() {
+        return getBoolean(
+                TweakerPreferences.KEY_WATCH_ALIAS_OVERRIDE_ENABLED,
+                TweakerPreferences.DEFAULT_WATCH_ALIAS_OVERRIDE_ENABLED);
+    }
+
+    public String watchAliasName() {
+        SharedPreferences preferences = getRemotePreferences();
+        if (preferences == null) {
+            return TweakerPreferences.DEFAULT_WATCH_ALIAS_NAME;
+        }
+        return getString(
+                preferences,
+                TweakerPreferences.KEY_WATCH_ALIAS_NAME,
+                TweakerPreferences.DEFAULT_WATCH_ALIAS_NAME);
+    }
+
     public SpoofProfile spoofProfile() {
         SharedPreferences preferences = getRemotePreferences();
         if (preferences == null) {
