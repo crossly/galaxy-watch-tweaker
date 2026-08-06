@@ -11,7 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public final class Watch7CapabilityExchangeHook {
-    private static final String TAG_PREFIX = "GalaxyWatchPluginHook: ";
+    private static final String TAG_PREFIX = "GalaxyWatchTweaker: ";
     private static final String CAPABILITY_EXCHANGE_MESSAGE =
             "com.samsung.android.companionservice.capability.CapabilityExchangeMessage";
     private static final String CAPABILITY_EXCHANGE_SENDER =
@@ -28,7 +28,6 @@ public final class Watch7CapabilityExchangeHook {
         if (installed) {
             return;
         }
-        installed = true;
 
         try {
             Constructor<?> constructor = findTwoArgumentConstructor(
@@ -40,6 +39,7 @@ public final class Watch7CapabilityExchangeHook {
                 }
             });
             hookCapabilitySender(classLoader, profile);
+            installed = true;
             log("hooked Watch7 capability feature_exchange data");
         } catch (Throwable t) {
             log("Watch7 capability feature_exchange hook unavailable: " + t);

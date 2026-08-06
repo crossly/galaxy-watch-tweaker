@@ -21,9 +21,9 @@ final class DeviceInfoSpoofHook {
         if (installed) {
             return;
         }
-        installed = true;
         hookJsonPut(profile);
         hookJsonStringConstructor(profile);
+        installed = true;
     }
 
     static Object spoofValue(String key, Object value, SpoofProfile profile) {

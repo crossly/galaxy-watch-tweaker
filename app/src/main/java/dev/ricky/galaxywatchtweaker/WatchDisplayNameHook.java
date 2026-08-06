@@ -8,7 +8,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public final class WatchDisplayNameHook {
-    private static final String TAG_PREFIX = "GalaxyWatchPluginHook: ";
+    private static final String TAG_PREFIX = "GalaxyWatchTweaker: ";
     private static final String SHARED_COMMON_UTILS =
             "com.samsung.android.plugin.sharedlib.utils.SharedCommonUtils";
     private static volatile boolean installed;

@@ -2,8 +2,8 @@ package dev.ricky.galaxywatchtweaker;
 
 import android.util.Log;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import dev.ricky.galaxywatchtweaker.hook.HookConfig;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
@@ -13,8 +13,8 @@ public final class ModernHookEntry extends XposedModule {
     private static final String TAG = "GalaxyWatchTweaker";
     private final HookConfig config = new HookConfig(this);
     private final HookEntry legacyEntry = new HookEntry();
-    private final Set<String> dispatchedTargets = new HashSet<>();
-    private String currentProcessName = "";
+    private final Set<String> dispatchedTargets = ConcurrentHashMap.newKeySet();
+    private volatile String currentProcessName = "";
 
     @Override
     public void onModuleLoaded(ModuleLoadedParam param) {
@@ -29,7 +29,7 @@ public final class ModernHookEntry extends XposedModule {
         legacyParam.packageName = "android";
         legacyParam.processName = "android";
         legacyParam.classLoader = param.getClassLoader();
-        dispatch(legacyParam);
+        dispatch(legacyParam, "systemServerStarting");
     }
 
     @Override
@@ -38,7 +38,7 @@ public final class ModernHookEntry extends XposedModule {
         legacyParam.packageName = param.getPackageName();
         legacyParam.processName = currentProcessName;
         legacyParam.classLoader = param.getDefaultClassLoader();
-        dispatch(legacyParam);
+        dispatch(legacyParam, "packageLoaded");
     }
 
     @Override
@@ -47,11 +47,11 @@ public final class ModernHookEntry extends XposedModule {
         legacyParam.packageName = param.getPackageName();
         legacyParam.processName = currentProcessName;
         legacyParam.classLoader = param.getClassLoader();
-        dispatch(legacyParam);
+        dispatch(legacyParam, "packageReady");
     }
 
-    private void dispatch(XC_LoadPackage.LoadPackageParam legacyParam) {
-        String targetKey = legacyParam.packageName + "/" + legacyParam.processName;
+    private void dispatch(XC_LoadPackage.LoadPackageParam legacyParam, String phase) {
+        String targetKey = phase + "/" + legacyParam.packageName + "/" + legacyParam.processName;
         if (!dispatchedTargets.add(targetKey)) {
             return;
         }

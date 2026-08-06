@@ -11,7 +11,7 @@ import de.robv.android.xposed.XposedHelpers;
 final class CompanionPresenceRecoveryHook {
     private static final String CDM_SERVICE =
             "com.android.server.companion.CompanionDeviceManagerService";
-    private static final String TAG_PREFIX = "GalaxyWatchPluginHook: ";
+    private static final String TAG_PREFIX = "GalaxyWatchTweaker: ";
     private static final long BOOT_RECOVERY_DELAY_MS = 45_000L;
     private static final long RETRY_RECOVERY_DELAY_MS = 120_000L;
     private static volatile boolean installed;
@@ -53,7 +53,7 @@ final class CompanionPresenceRecoveryHook {
             recoverSamsungWatchAssociations(companionDeviceManagerService);
             sleep(RETRY_RECOVERY_DELAY_MS);
             recoverSamsungWatchAssociations(companionDeviceManagerService);
-        }, "GalaxyWatchPluginHook-CDM");
+        }, "GalaxyWatchTweaker-CDM");
         worker.setDaemon(true);
         worker.start();
         log("scheduled companion presence recovery");

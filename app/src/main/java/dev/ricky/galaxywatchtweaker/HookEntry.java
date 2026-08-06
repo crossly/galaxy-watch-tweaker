@@ -19,7 +19,7 @@ public final class HookEntry implements IXposedHookLoadPackage {
     private static final String SHM_PACKAGE = "com.samsung.android.shealthmonitor";
     private static final String CAPABILITY_DATA_SETTER =
             "com.samsung.android.basicdata.capability.CapabilityDataSetter";
-    private static final String TAG_PREFIX = "GalaxyWatchPluginHook: ";
+    private static final String TAG_PREFIX = "GalaxyWatchTweaker: ";
     private static volatile boolean companionIdentityHookInstalled;
     private static volatile boolean googleWearIdentityHookInstalled;
 
@@ -78,7 +78,6 @@ public final class HookEntry implements IXposedHookLoadPackage {
         if (googleWearIdentityHookInstalled) {
             return;
         }
-        googleWearIdentityHookInstalled = true;
 
         spoofBuildIdentity(profile);
         try {
@@ -102,6 +101,7 @@ public final class HookEntry implements IXposedHookLoadPackage {
                             }
                         }
                     });
+            googleWearIdentityHookInstalled = true;
             log("hooked Google Wear companion identity");
         } catch (Throwable t) {
             log("Google Wear companion identity hook unavailable: " + t);
@@ -129,7 +129,6 @@ public final class HookEntry implements IXposedHookLoadPackage {
         if (companionIdentityHookInstalled) {
             return;
         }
-        companionIdentityHookInstalled = true;
 
         try {
             XposedHelpers.findAndHookMethod(
@@ -159,6 +158,7 @@ public final class HookEntry implements IXposedHookLoadPackage {
                                     + spoofedValue);
                         }
                     });
+            companionIdentityHookInstalled = true;
             log("hooked " + CAPABILITY_DATA_SETTER + "#setPreference(String)");
         } catch (Throwable t) {
             log("CapabilityDataSetter#setPreference hook unavailable: " + t);

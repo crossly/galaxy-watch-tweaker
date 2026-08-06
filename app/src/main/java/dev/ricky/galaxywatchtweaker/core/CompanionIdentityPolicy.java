@@ -1,6 +1,7 @@
 package dev.ricky.galaxywatchtweaker.core;
 
 import dev.ricky.galaxywatchtweaker.settings.SpoofProfile;
+import dev.ricky.galaxywatchtweaker.settings.TweakerPreferences;
 
 public final class CompanionIdentityPolicy {
     public static final String KEY_MANUFACTURER = "key_manufacturer";
@@ -9,6 +10,7 @@ public final class CompanionIdentityPolicy {
     public static final String FEATURE_VENDOR = "vender";
     public static final String FEATURE_MODEL_NUMBER = "modelNumber";
     public static final String FEATURE_CSC = "csc";
+    private static final String WATCH_COMPATIBLE_MODEL = "SM-S938U";
 
     private CompanionIdentityPolicy() {
     }
@@ -116,8 +118,8 @@ public final class CompanionIdentityPolicy {
     }
 
     public static String toWatchCompatibleModel(String model) {
-        if (model != null && model.endsWith("1")) {
-            return model.substring(0, model.length() - 1);
+        if (TweakerPreferences.DEFAULT_SPOOF_MODEL.equals(model)) {
+            return WATCH_COMPATIBLE_MODEL;
         }
         return model;
     }

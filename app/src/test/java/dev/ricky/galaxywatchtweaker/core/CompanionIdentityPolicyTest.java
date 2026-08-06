@@ -65,4 +65,20 @@ public class CompanionIdentityPolicyTest {
                 "original",
                 CompanionIdentityPolicy.systemPropertyValueFor("ro.boot.verifiedbootstate", "original"));
     }
+
+    @Test
+    public void mapsExactPresetModelToWatchCompatibleModel() {
+        assertEquals("SM-S938U", CompanionIdentityPolicy.toWatchCompatibleModel("SM-S938U1"));
+    }
+
+    @Test
+    public void passesOtherModelsEndingInOneThroughUnchanged() {
+        assertEquals("SM-G9911", CompanionIdentityPolicy.toWatchCompatibleModel("SM-G9911"));
+        assertEquals("BKQ-AN91", CompanionIdentityPolicy.toWatchCompatibleModel("BKQ-AN91"));
+    }
+
+    @Test
+    public void passesBareOneThroughUnchanged() {
+        assertEquals("1", CompanionIdentityPolicy.toWatchCompatibleModel("1"));
+    }
 }

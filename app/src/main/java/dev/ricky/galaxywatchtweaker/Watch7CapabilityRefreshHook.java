@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 public final class Watch7CapabilityRefreshHook {
-    private static final String TAG_PREFIX = "GalaxyWatchPluginHook: ";
+    private static final String TAG_PREFIX = "GalaxyWatchTweaker: ";
     private static final String CAPABILITY_COMPANION =
             "com.samsung.android.companionservice.service.CapabilityCompanion";
     private static final String WATCH =
@@ -83,7 +83,11 @@ public final class Watch7CapabilityRefreshHook {
                         Object btAddr = XposedHelpers.getObjectField(
                                 param.thisObject,
                                 "mLastestConnectedBtAddr");
-                        scheduleRefresh(param.thisObject, String.valueOf(btAddr));
+                        if (btAddr == null || btAddr.toString().trim().isEmpty()) {
+                            log("skip WCS refresh: btAddr unavailable");
+                            return;
+                        }
+                        scheduleRefresh(param.thisObject, btAddr.toString());
                     }
                 });
     }
@@ -130,7 +134,7 @@ public final class Watch7CapabilityRefreshHook {
             requestCapabilityExchange(capabilityCompanion, normalizedBtAddr, "first");
             sleep(SECOND_REFRESH_DELAY_MS - FIRST_REFRESH_DELAY_MS);
             requestCapabilityExchange(capabilityCompanion, normalizedBtAddr, "retry");
-        }, "GalaxyWatchPluginHook-WCS");
+        }, "GalaxyWatchTweaker-WCS");
         worker.setDaemon(true);
         worker.start();
         log("scheduled WCS capability refresh for " + normalizedBtAddr);

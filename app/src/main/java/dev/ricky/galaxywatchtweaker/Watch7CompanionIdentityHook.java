@@ -9,7 +9,7 @@ import de.robv.android.xposed.XposedHelpers;
 import java.lang.reflect.Method;
 
 public final class Watch7CompanionIdentityHook {
-    private static final String TAG_PREFIX = "GalaxyWatchPluginHook: ";
+    private static final String TAG_PREFIX = "GalaxyWatchTweaker: ";
     private static final String WEAR_COMPANION_IDENTITY_MODEL =
             "com.google.android.gms.internal.wear_companion.wt";
     private static volatile boolean installed;
@@ -21,7 +21,6 @@ public final class Watch7CompanionIdentityHook {
         if (installed) {
             return;
         }
-        installed = true;
 
         try {
             Method refreshMethod = findSingleArgumentMethod(
@@ -33,6 +32,7 @@ public final class Watch7CompanionIdentityHook {
                     spoofCompanionIdentityModel(param.thisObject, profile);
                 }
             });
+            installed = true;
             log("hooked Watch7 companion identity model");
         } catch (Throwable t) {
             log("Watch7 companion identity model hook unavailable: " + t);

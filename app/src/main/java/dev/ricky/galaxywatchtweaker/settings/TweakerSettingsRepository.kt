@@ -63,7 +63,7 @@ class TweakerSettingsRepository(context: Context) {
         mutableSettings.value = preferences.readSettings()
     }
 
-    private fun syncRemotePreferences() {
+    fun syncRemotePreferences() {
         val settings = preferences.readSettings()
         updateRemotePreferences {
             putBoolean(TweakerPreferences.KEY_SHM_PATCH_ENABLED, settings.shmPatchEnabled)

@@ -122,7 +122,7 @@ public class HookEntrySourceTest {
         assertTrue(hookSource.contains("onConnectionStateChanged"));
         assertTrue(hookSource.contains("mLastestConnectedBtAddr"));
         assertTrue(hookSource.contains("requestCapabilityExchange"));
-        assertTrue(hookSource.contains("GalaxyWatchPluginHook-WCS"));
+        assertTrue(hookSource.contains("GalaxyWatchTweaker-WCS"));
     }
 
     private static String read(String path) throws Exception {
