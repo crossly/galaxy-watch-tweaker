@@ -16,9 +16,6 @@ public final class Watch7CapabilityExchangeHook {
             "com.samsung.android.companionservice.capability.CapabilityExchangeMessage";
     private static final String CAPABILITY_EXCHANGE_SENDER =
             "com.samsung.android.companionservice.capability.CapabilityExchangeSender";
-    private static final String FEATURE_VENDOR = "vender";
-    private static final String FEATURE_MODEL_NUMBER = "modelNumber";
-    private static final String FEATURE_CSC = "csc";
     private static volatile boolean installed;
 
     private Watch7CapabilityExchangeHook() {
@@ -79,12 +76,12 @@ public final class Watch7CapabilityExchangeHook {
         }
 
         Map<Object, Object> mutableData = new LinkedHashMap<>((Map<?, ?>) data);
-        Object originalVendor = mutableData.get(FEATURE_VENDOR);
+        Object originalVendor = mutableData.get(CompanionIdentityPolicy.FEATURE_VENDOR);
         String manufacturer = profile.manufacturer().toUpperCase();
-        mutableData.put(FEATURE_VENDOR, manufacturer);
-        mutableData.put(FEATURE_MODEL_NUMBER,
+        mutableData.put(CompanionIdentityPolicy.FEATURE_VENDOR, manufacturer);
+        mutableData.put(CompanionIdentityPolicy.FEATURE_MODEL_NUMBER,
                 CompanionIdentityPolicy.toWatchCompatibleModel(profile.model()));
-        mutableData.put(FEATURE_CSC, profile.salesCode());
+        mutableData.put(CompanionIdentityPolicy.FEATURE_CSC, profile.salesCode());
         XposedHelpers.setObjectField(message, "data", mutableData);
         log("spoofed Watch7 feature_exchange vendor " + originalVendor
                 + " -> " + manufacturer);

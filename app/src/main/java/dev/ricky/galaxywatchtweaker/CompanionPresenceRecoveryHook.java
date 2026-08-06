@@ -3,7 +3,7 @@ package dev.ricky.galaxywatchtweaker;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import dev.ricky.galaxywatchtweaker.core.WatchdogPolicy;
+import dev.ricky.galaxywatchtweaker.core.TargetPackages;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
@@ -49,9 +49,9 @@ final class CompanionPresenceRecoveryHook {
         }
 
         Thread worker = new Thread(() -> {
-            sleep(BOOT_RECOVERY_DELAY_MS);
+            HookUtils.sleep(BOOT_RECOVERY_DELAY_MS);
             recoverSamsungWatchAssociations(companionDeviceManagerService);
-            sleep(RETRY_RECOVERY_DELAY_MS);
+            HookUtils.sleep(RETRY_RECOVERY_DELAY_MS);
             recoverSamsungWatchAssociations(companionDeviceManagerService);
         }, "GalaxyWatchTweaker-CDM");
         worker.setDaemon(true);
@@ -73,7 +73,7 @@ final class CompanionPresenceRecoveryHook {
                     associationStore,
                     "getActiveAssociationsByPackage",
                     0,
-                    WatchdogPolicy.WATCH7_PLUGIN_PACKAGE);
+                    TargetPackages.WATCH7_PLUGIN_PACKAGE);
             if (!(associationsObject instanceof List)) {
                 log("skip framework recovery: association list unavailable");
                 return;
@@ -86,7 +86,7 @@ final class CompanionPresenceRecoveryHook {
             for (Object association : (List<?>) associationsObject) {
                 String packageName = String.valueOf(
                         XposedHelpers.callMethod(association, "getPackageName"));
-                if (!WatchdogPolicy.WATCH7_PLUGIN_PACKAGE.equals(packageName)) {
+                if (!TargetPackages.WATCH7_PLUGIN_PACKAGE.equals(packageName)) {
                     continue;
                 }
 
@@ -122,14 +122,6 @@ final class CompanionPresenceRecoveryHook {
             log("enabled companion presence observation for Watch7 association");
         } catch (Throwable t) {
             log("unable to enable companion presence observation: " + t);
-        }
-    }
-
-    private static void sleep(long delayMs) {
-        try {
-            Thread.sleep(delayMs);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
         }
     }
 

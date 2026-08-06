@@ -4,10 +4,7 @@ public final class WatchAliasPolicy {
     private WatchAliasPolicy() {
     }
 
-    public static String aliasFor(boolean enabled, String configuredAlias, String originalAlias) {
-        if (!enabled) {
-            return originalAlias;
-        }
+    public static String aliasFor(String configuredAlias, String originalAlias) {
         if (configuredAlias == null || configuredAlias.trim().isEmpty()) {
             return originalAlias;
         }

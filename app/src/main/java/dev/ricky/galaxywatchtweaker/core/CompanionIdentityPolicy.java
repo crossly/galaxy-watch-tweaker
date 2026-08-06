@@ -15,10 +15,6 @@ public final class CompanionIdentityPolicy {
     private CompanionIdentityPolicy() {
     }
 
-    public static String spoofedValueFor(String preferenceKey, String originalValue) {
-        return spoofedValueFor(preferenceKey, originalValue, SpoofProfile.defaults());
-    }
-
     public static String spoofedValueFor(
             String preferenceKey,
             String originalValue,
@@ -45,10 +41,6 @@ public final class CompanionIdentityPolicy {
                 || FEATURE_VENDOR.equals(preferenceKey)
                 || FEATURE_MODEL_NUMBER.equals(preferenceKey)
                 || FEATURE_CSC.equals(preferenceKey);
-    }
-
-    public static String systemPropertyValueFor(String key, String originalValue) {
-        return systemPropertyValueFor(key, originalValue, SpoofProfile.defaults());
     }
 
     public static String systemPropertyValueFor(
@@ -91,30 +83,6 @@ public final class CompanionIdentityPolicy {
             return profile.salesCode();
         }
         return originalValue;
-    }
-
-    public static String samsungManufacturer() {
-        return SpoofProfile.defaults().manufacturer().toUpperCase();
-    }
-
-    public static String samsungBrand() {
-        return SpoofProfile.defaults().brand();
-    }
-
-    public static String samsungModel() {
-        return toWatchCompatibleModel(SpoofProfile.defaults().model());
-    }
-
-    public static String samsungDevice() {
-        return SpoofProfile.defaults().device();
-    }
-
-    public static String samsungProduct() {
-        return SpoofProfile.defaults().product();
-    }
-
-    public static String usaSalesCode() {
-        return SpoofProfile.defaults().salesCode();
     }
 
     public static String toWatchCompatibleModel(String model) {

@@ -96,6 +96,8 @@ public class HookEntrySourceTest {
         String entrySource = read("app/src/main/java/dev/ricky/galaxywatchtweaker/HookEntry.java");
         String hookSource = read(
                 "app/src/main/java/dev/ricky/galaxywatchtweaker/Watch7CapabilityExchangeHook.java");
+        String policySource = read(
+                "app/src/main/java/dev/ricky/galaxywatchtweaker/core/CompanionIdentityPolicy.java");
 
         assertTrue(entrySource.contains("Watch7CapabilityExchangeHook.install"));
         assertTrue(hookSource.contains(
@@ -103,9 +105,12 @@ public class HookEntrySourceTest {
         assertTrue(hookSource.contains(
                 "com.samsung.android.companionservice.capability.CapabilityExchangeSender"));
         assertTrue(hookSource.contains("\"data\""));
-        assertTrue(hookSource.contains("vender"));
-        assertTrue(hookSource.contains("modelNumber"));
-        assertTrue(hookSource.contains("csc"));
+        assertTrue(hookSource.contains("CompanionIdentityPolicy.FEATURE_VENDOR"));
+        assertTrue(hookSource.contains("CompanionIdentityPolicy.FEATURE_MODEL_NUMBER"));
+        assertTrue(hookSource.contains("CompanionIdentityPolicy.FEATURE_CSC"));
+        assertTrue(policySource.contains("FEATURE_VENDOR = \"vender\""));
+        assertTrue(policySource.contains("FEATURE_MODEL_NUMBER = \"modelNumber\""));
+        assertTrue(policySource.contains("FEATURE_CSC = \"csc\""));
         assertTrue(hookSource.contains("setCapabilityMessage"));
         assertTrue(hookSource.contains("profile.salesCode()"));
     }

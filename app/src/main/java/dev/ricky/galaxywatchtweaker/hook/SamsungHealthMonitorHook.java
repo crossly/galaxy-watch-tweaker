@@ -16,7 +16,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public final class SamsungHealthMonitorHook {
     private static final String TAG = "GalaxyWatchTweaker/SHM: ";
-    private static final String SHM_PACKAGE = "com.samsung.android.shealthmonitor";
+    public static final String SHM_PACKAGE = "com.samsung.android.shealthmonitor";
 
     private SamsungHealthMonitorHook() {
     }
@@ -174,11 +174,9 @@ public final class SamsungHealthMonitorHook {
     }
 
     private static void spoofBuildFields(SpoofProfile profile) {
-        setStaticField(Build.class, "MANUFACTURER", profile.manufacturer());
-        setStaticField(Build.class, "BRAND", profile.brand());
-        setStaticField(Build.class, "MODEL", profile.model());
-        setStaticField(Build.class, "DEVICE", profile.device());
-        setStaticField(Build.class, "PRODUCT", profile.product());
+        for (Map.Entry<String, String> buildField : profile.buildFields().entrySet()) {
+            setStaticField(Build.class, buildField.getKey(), buildField.getValue());
+        }
         setStaticField(Build.class, "FINGERPRINT", profile.fingerprint());
     }
 

@@ -12,6 +12,40 @@ import de.robv.android.xposed.XposedHelpers;
 
 final class DeviceInfoSpoofHook {
     private static final String TAG = "GalaxyWatchTweaker/DeviceInfo: ";
+    private static final String KEY_DEVICE_NAME = "device_name";
+    private static final String KEY_MODEL_NUMBER = "model_number";
+    private static final String KEY_MODEL = "model";
+    private static final String KEY_VENDOR = "vendor";
+    private static final String KEY_MANUFACTURER = "manufacturer";
+    private static final String KEY_CSC = "csc";
+    private static final String KEY_SALES_CODE = "sales_code";
+    private static final String KEY_COUNTRY = "country";
+    private static final String KEY_COUNTRY_CODE = "country_code";
+    private static final String KEY_COUNTRYISO_CODE = "countryiso_code";
+    private static final String KEY_SIM_ISO_COUNTRY = "sim_iso_country";
+    private static final String KEY_MCC = "mcc";
+    private static final String KEY_MNC = "mnc";
+    private static final String KEY_DEVICE_PLATFORM_VERSION = "device_platform_version";
+    private static final String KEY_PLATFORM_VERSION = "platform_version";
+    private static final String KEY_SDK_VERSION = "sdk_version";
+    private static final String[] SPOOF_KEYS = {
+            KEY_DEVICE_NAME,
+            KEY_MODEL_NUMBER,
+            KEY_MODEL,
+            KEY_VENDOR,
+            KEY_MANUFACTURER,
+            KEY_CSC,
+            KEY_SALES_CODE,
+            KEY_COUNTRY,
+            KEY_COUNTRY_CODE,
+            KEY_COUNTRYISO_CODE,
+            KEY_SIM_ISO_COUNTRY,
+            KEY_MCC,
+            KEY_MNC,
+            KEY_DEVICE_PLATFORM_VERSION,
+            KEY_PLATFORM_VERSION,
+            KEY_SDK_VERSION
+    };
     private static volatile boolean installed;
 
     private DeviceInfoSpoofHook() {
@@ -32,9 +66,9 @@ final class DeviceInfoSpoofHook {
         }
         String stringValue = value != null ? String.valueOf(value) : "";
         switch (key) {
-            case "device_name":
-            case "model_number":
-            case "model":
+            case KEY_DEVICE_NAME:
+            case KEY_MODEL_NUMBER:
+            case KEY_MODEL:
                 if (isChineseGalaxyWatchUltra(stringValue)) {
                     return "SM-L705U";
                 }
@@ -42,25 +76,25 @@ final class DeviceInfoSpoofHook {
                     return value;
                 }
                 return profile.model();
-            case "vendor":
-            case "manufacturer":
+            case KEY_VENDOR:
+            case KEY_MANUFACTURER:
                 return profile.manufacturer();
-            case "csc":
-            case "sales_code":
+            case KEY_CSC:
+            case KEY_SALES_CODE:
                 return profile.salesCode();
-            case "country":
-            case "country_code":
-            case "countryiso_code":
-            case "sim_iso_country":
+            case KEY_COUNTRY:
+            case KEY_COUNTRY_CODE:
+            case KEY_COUNTRYISO_CODE:
+            case KEY_SIM_ISO_COUNTRY:
                 return profile.countryIso();
-            case "mcc":
+            case KEY_MCC:
                 return profile.mcc();
-            case "mnc":
+            case KEY_MNC:
                 return profile.mnc();
-            case "device_platform_version":
-            case "platform_version":
+            case KEY_DEVICE_PLATFORM_VERSION:
+            case KEY_PLATFORM_VERSION:
                 return "15";
-            case "sdk_version":
+            case KEY_SDK_VERSION:
                 return "35";
             default:
                 return value;
@@ -72,25 +106,7 @@ final class DeviceInfoSpoofHook {
             return false;
         }
         boolean changed = false;
-        String[] keys = {
-                "device_name",
-                "model_number",
-                "model",
-                "vendor",
-                "manufacturer",
-                "csc",
-                "sales_code",
-                "country",
-                "country_code",
-                "countryiso_code",
-                "sim_iso_country",
-                "mcc",
-                "mnc",
-                "device_platform_version",
-                "platform_version",
-                "sdk_version"
-        };
-        for (String key : keys) {
+        for (String key : SPOOF_KEYS) {
             try {
                 if (jsonObject.has(key)) {
                     Object original = jsonObject.opt(key);

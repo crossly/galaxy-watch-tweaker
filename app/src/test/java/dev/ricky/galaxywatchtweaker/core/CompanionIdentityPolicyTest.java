@@ -2,28 +2,32 @@ package dev.ricky.galaxywatchtweaker.core;
 
 import org.junit.Test;
 
+import dev.ricky.galaxywatchtweaker.settings.SpoofProfile;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class CompanionIdentityPolicyTest {
+    private static final SpoofProfile PROFILE = SpoofProfile.defaults();
+
     @Test
     public void returnsSamsungIdentityForCompanionKeys() {
-        assertEquals("SAMSUNG", CompanionIdentityPolicy.spoofedValueFor("key_manufacturer", "HONOR"));
-        assertEquals("SM-S938U", CompanionIdentityPolicy.spoofedValueFor("key_model_number", "BKQ-AN90"));
-        assertEquals("XAA", CompanionIdentityPolicy.spoofedValueFor("key_sales_code", "CHC"));
+        assertEquals("SAMSUNG", CompanionIdentityPolicy.spoofedValueFor("key_manufacturer", "HONOR", PROFILE));
+        assertEquals("SM-S938U", CompanionIdentityPolicy.spoofedValueFor("key_model_number", "BKQ-AN90", PROFILE));
+        assertEquals("XAA", CompanionIdentityPolicy.spoofedValueFor("key_sales_code", "CHC", PROFILE));
     }
 
     @Test
     public void returnsSamsungIdentityForFeatureExchangeKeys() {
-        assertEquals("SAMSUNG", CompanionIdentityPolicy.spoofedValueFor("vender", "honor"));
-        assertEquals("SM-S938U", CompanionIdentityPolicy.spoofedValueFor("modelNumber", "BKQ-AN90"));
-        assertEquals("XAA", CompanionIdentityPolicy.spoofedValueFor("csc", "CHC"));
+        assertEquals("SAMSUNG", CompanionIdentityPolicy.spoofedValueFor("vender", "honor", PROFILE));
+        assertEquals("SM-S938U", CompanionIdentityPolicy.spoofedValueFor("modelNumber", "BKQ-AN90", PROFILE));
+        assertEquals("XAA", CompanionIdentityPolicy.spoofedValueFor("csc", "CHC", PROFILE));
     }
 
     @Test
     public void leavesUnrelatedCapabilityValuesUntouched() {
-        assertEquals("original", CompanionIdentityPolicy.spoofedValueFor("key_watch_sdk_version", "original"));
+        assertEquals("original", CompanionIdentityPolicy.spoofedValueFor("key_watch_sdk_version", "original", PROFILE));
         assertFalse(CompanionIdentityPolicy.shouldSpoof("key_watch_sdk_version"));
     }
 
@@ -41,29 +45,23 @@ public class CompanionIdentityPolicyTest {
     public void mapsGoogleWearPhoneIdentityPropertiesToSamsungUsModel() {
         assertEquals(
                 "samsung",
-                CompanionIdentityPolicy.systemPropertyValueFor("ro.product.manufacturer", "HONOR"));
+                CompanionIdentityPolicy.systemPropertyValueFor("ro.product.manufacturer", "HONOR", PROFILE));
         assertEquals(
                 "samsung",
-                CompanionIdentityPolicy.systemPropertyValueFor("ro.product.brand", "HONOR"));
+                CompanionIdentityPolicy.systemPropertyValueFor("ro.product.brand", "HONOR", PROFILE));
         assertEquals(
                 "SM-S938U",
-                CompanionIdentityPolicy.systemPropertyValueFor("ro.product.model", "BKQ-AN90"));
+                CompanionIdentityPolicy.systemPropertyValueFor("ro.product.model", "BKQ-AN90", PROFILE));
         assertEquals(
                 "XAA",
-                CompanionIdentityPolicy.systemPropertyValueFor("ro.csc.sales_code", "CHC"));
-    }
-
-    @Test
-    public void exposesSamsungS25UltraIdentityForWatch7EligibilityModel() {
-        assertEquals("SAMSUNG", CompanionIdentityPolicy.samsungManufacturer());
-        assertEquals("SM-S938U", CompanionIdentityPolicy.samsungModel());
+                CompanionIdentityPolicy.systemPropertyValueFor("ro.csc.sales_code", "CHC", PROFILE));
     }
 
     @Test
     public void leavesUnrelatedSystemPropertiesUntouched() {
         assertEquals(
                 "original",
-                CompanionIdentityPolicy.systemPropertyValueFor("ro.boot.verifiedbootstate", "original"));
+                CompanionIdentityPolicy.systemPropertyValueFor("ro.boot.verifiedbootstate", "original", PROFILE));
     }
 
     @Test

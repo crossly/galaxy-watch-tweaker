@@ -130,9 +130,9 @@ public final class Watch7CapabilityRefreshHook {
         }
 
         Thread worker = new Thread(() -> {
-            sleep(FIRST_REFRESH_DELAY_MS);
+            HookUtils.sleep(FIRST_REFRESH_DELAY_MS);
             requestCapabilityExchange(capabilityCompanion, normalizedBtAddr, "first");
-            sleep(SECOND_REFRESH_DELAY_MS - FIRST_REFRESH_DELAY_MS);
+            HookUtils.sleep(SECOND_REFRESH_DELAY_MS - FIRST_REFRESH_DELAY_MS);
             requestCapabilityExchange(capabilityCompanion, normalizedBtAddr, "retry");
         }, "GalaxyWatchTweaker-WCS");
         worker.setDaemon(true);
@@ -149,14 +149,6 @@ public final class Watch7CapabilityRefreshHook {
             log("requested WCS capability refresh " + attempt + " for " + btAddr);
         } catch (Throwable t) {
             log("WCS capability refresh " + attempt + " failed for " + btAddr + ": " + t);
-        }
-    }
-
-    private static void sleep(long delayMs) {
-        try {
-            Thread.sleep(delayMs);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
         }
     }
 

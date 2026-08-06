@@ -2,10 +2,12 @@ package dev.ricky.galaxywatchtweaker;
 
 import android.content.Context;
 
+import java.util.Map;
+
 import dev.ricky.galaxywatchtweaker.hook.HookConfig;
 import dev.ricky.galaxywatchtweaker.hook.SamsungHealthMonitorHook;
 import dev.ricky.galaxywatchtweaker.core.CompanionIdentityPolicy;
-import dev.ricky.galaxywatchtweaker.core.WatchdogPolicy;
+import dev.ricky.galaxywatchtweaker.core.TargetPackages;
 import dev.ricky.galaxywatchtweaker.settings.SpoofProfile;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
@@ -16,7 +18,6 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 public final class HookEntry implements IXposedHookLoadPackage {
     private static final String ANDROID_PACKAGE = "android";
     private static final String GOOGLE_WEAR_PACKAGE = "com.google.android.wearable.app.cn";
-    private static final String SHM_PACKAGE = "com.samsung.android.shealthmonitor";
     private static final String CAPABILITY_DATA_SETTER =
             "com.samsung.android.basicdata.capability.CapabilityDataSetter";
     private static final String TAG_PREFIX = "GalaxyWatchTweaker: ";
@@ -40,12 +41,12 @@ public final class HookEntry implements IXposedHookLoadPackage {
             return;
         }
 
-        if (SHM_PACKAGE.equals(lpparam.packageName)) {
+        if (SamsungHealthMonitorHook.SHM_PACKAGE.equals(lpparam.packageName)) {
             SamsungHealthMonitorHook.handleLoadPackage(lpparam, config);
             return;
         }
 
-        if (!WatchdogPolicy.isTargetPackage(lpparam.packageName)) {
+        if (!TargetPackages.isTargetPackage(lpparam.packageName)) {
             if (GOOGLE_WEAR_PACKAGE.equals(lpparam.packageName)) {
                 if (config.isCompanionIdentityEnabled()) {
                     hookGoogleWearCompanionIdentity(lpparam.classLoader, config.spoofProfile());
@@ -55,7 +56,7 @@ public final class HookEntry implements IXposedHookLoadPackage {
         }
 
         log("loaded for " + lpparam.packageName);
-        if (WatchdogPolicy.WATCH7_PLUGIN_PACKAGE.equals(lpparam.packageName)) {
+        if (TargetPackages.WATCH7_PLUGIN_PACKAGE.equals(lpparam.packageName)) {
             SpoofProfile profile = config.spoofProfile();
             if (config.isCompanionIdentityEnabled()) {
                 hookCompanionIdentityWrites(lpparam.classLoader, profile);
@@ -109,11 +110,15 @@ public final class HookEntry implements IXposedHookLoadPackage {
     }
 
     private static void spoofBuildIdentity(SpoofProfile profile) {
-        setBuildField("MANUFACTURER", profile.manufacturer().toUpperCase());
-        setBuildField("BRAND", profile.brand());
-        setBuildField("MODEL", CompanionIdentityPolicy.toWatchCompatibleModel(profile.model()));
-        setBuildField("DEVICE", profile.device());
-        setBuildField("PRODUCT", profile.product());
+        for (Map.Entry<String, String> buildField : profile.buildFields().entrySet()) {
+            String value = buildField.getValue();
+            if ("MANUFACTURER".equals(buildField.getKey())) {
+                value = value.toUpperCase();
+            } else if ("MODEL".equals(buildField.getKey())) {
+                value = CompanionIdentityPolicy.toWatchCompatibleModel(value);
+            }
+            setBuildField(buildField.getKey(), value);
+        }
     }
 
     private static void setBuildField(String fieldName, String value) {

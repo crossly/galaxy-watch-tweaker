@@ -47,8 +47,8 @@ public final class WatchDisplayNameHook {
             @Override
             protected void afterHookedMethod(MethodHookParam param) {
                 String originalAlias = (String) param.getResult();
-                String alias = WatchAliasPolicy.aliasFor(true, aliasName, originalAlias);
-                if (alias != originalAlias && !alias.equals(originalAlias)) {
+                String alias = WatchAliasPolicy.aliasFor(aliasName, originalAlias);
+                if (alias != null && !alias.equals(originalAlias)) {
                     param.setResult(alias);
                 }
             }

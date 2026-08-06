@@ -1,5 +1,8 @@
 package dev.ricky.galaxywatchtweaker.settings;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 public final class SpoofProfile {
     private final String manufacturer;
     private final String brand;
@@ -103,5 +106,15 @@ public final class SpoofProfile {
 
     public String operatorName() {
         return operatorName;
+    }
+
+    public Map<String, String> buildFields() {
+        Map<String, String> fields = new LinkedHashMap<>();
+        fields.put("MANUFACTURER", manufacturer);
+        fields.put("BRAND", brand);
+        fields.put("MODEL", model);
+        fields.put("DEVICE", device);
+        fields.put("PRODUCT", product);
+        return fields;
     }
 }
