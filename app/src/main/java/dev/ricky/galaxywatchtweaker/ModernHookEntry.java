@@ -27,7 +27,7 @@ public final class ModernHookEntry extends XposedModule {
     public void onSystemServerStarting(SystemServerStartingParam param) {
         XC_LoadPackage.LoadPackageParam legacyParam = new XC_LoadPackage.LoadPackageParam();
         legacyParam.packageName = "android";
-        legacyParam.processName = "android";
+        legacyParam.processName = "system";
         legacyParam.classLoader = param.getClassLoader();
         dispatch(legacyParam, "systemServerStarting");
     }

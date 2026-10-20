@@ -17,6 +17,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public final class HookEntry implements IXposedHookLoadPackage {
     private static final String ANDROID_PACKAGE = "android";
+    private static final String SYSTEM_SERVER_PROCESS = "system";
     private static final String GOOGLE_WEAR_PACKAGE = "com.google.android.wearable.app.cn";
     private static final String CAPABILITY_DATA_SETTER =
             "com.samsung.android.basicdata.capability.CapabilityDataSetter";
@@ -34,7 +35,8 @@ public final class HookEntry implements IXposedHookLoadPackage {
         if (lpparam == null || config == null) {
             return;
         }
-        if (ANDROID_PACKAGE.equals(lpparam.packageName)) {
+        if (ANDROID_PACKAGE.equals(lpparam.packageName)
+                && SYSTEM_SERVER_PROCESS.equals(lpparam.processName)) {
             if (config.isConnectionRecoveryEnabled()) {
                 CompanionPresenceRecoveryHook.install(lpparam.classLoader);
             }

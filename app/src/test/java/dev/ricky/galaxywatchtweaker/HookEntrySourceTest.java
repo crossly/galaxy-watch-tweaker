@@ -34,6 +34,30 @@ public class HookEntrySourceTest {
     }
 
     @Test
+    public void frameworkRecoveryReactivatesWhenWatchBleReappears() throws Exception {
+        String source = read(
+                "app/src/main/java/dev/ricky/galaxywatchtweaker/CompanionPresenceRecoveryHook.java");
+
+        assertTrue(source.contains(
+                "com.android.server.companion.devicepresence.DevicePresenceProcessor"));
+        assertTrue(source.contains("onBleCompanionDeviceFound"));
+        assertTrue(source.contains("requestBluetoothConnection"));
+        assertTrue(source.contains("\"connect\""));
+        assertTrue(source.contains("watch reappeared"));
+    }
+
+    @Test
+    public void frameworkRecoveryOnlyInstallsInSystemServerProcess() throws Exception {
+        String hookEntry = read("app/src/main/java/dev/ricky/galaxywatchtweaker/HookEntry.java");
+        String modernEntry = read(
+                "app/src/main/java/dev/ricky/galaxywatchtweaker/ModernHookEntry.java");
+
+        assertTrue(hookEntry.contains("SYSTEM_SERVER_PROCESS"));
+        assertTrue(hookEntry.contains("SYSTEM_SERVER_PROCESS.equals(lpparam.processName)"));
+        assertTrue(modernEntry.contains("legacyParam.processName = \"system\""));
+    }
+
+    @Test
     public void frameworkRecoveryMarksAssociationObservedBeforeConnectedEvent() throws Exception {
         String source = read(
                 "app/src/main/java/dev/ricky/galaxywatchtweaker/CompanionPresenceRecoveryHook.java");
