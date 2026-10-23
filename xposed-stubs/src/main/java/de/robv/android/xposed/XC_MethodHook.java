@@ -20,6 +20,10 @@ public abstract class XC_MethodHook {
         public Object[] args;
         private Object result;
 
+        public boolean hasThrowable() {
+            return false;
+        }
+
         public Object getResult() {
             return result;
         }

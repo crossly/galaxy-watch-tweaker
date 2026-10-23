@@ -4,6 +4,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.Constructor;
+import java.util.Locale;
 
 import dev.ricky.galaxywatchtweaker.settings.SpoofProfile;
 import de.robv.android.xposed.XC_MethodHook;
@@ -136,7 +137,7 @@ final class DeviceInfoSpoofHook {
     private static boolean isHonorPhoneValue(String value) {
         return value.startsWith("BKQ")
                 || value.startsWith("HNBKQ")
-                || value.toUpperCase().contains("HONOR");
+                || value.toUpperCase(Locale.ROOT).contains("HONOR");
     }
 
     private static boolean isChineseGalaxyWatchUltra(String value) {

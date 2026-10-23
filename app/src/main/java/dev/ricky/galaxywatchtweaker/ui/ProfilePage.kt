@@ -34,6 +34,9 @@ internal fun LazyListScope.profilePage(
         }
     }
     item {
+        Text(stringResource(R.string.companion_profile_notice, settings.companionModel, settings.companionSalesCode))
+    }
+    item {
         SettingsGroup(title = stringResource(R.string.section_spoof_profile)) {
             ProfileTextField(stringResource(R.string.field_manufacturer), TweakerPreferences.KEY_SPOOF_MANUFACTURER, settings.spoofManufacturer, onSpoofValueChanged)
             ProfileTextField(stringResource(R.string.field_brand), TweakerPreferences.KEY_SPOOF_BRAND, settings.spoofBrand, onSpoofValueChanged)

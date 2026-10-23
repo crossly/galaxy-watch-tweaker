@@ -9,7 +9,11 @@ public final class XSharedPreferences {
         throw new UnsupportedOperationException("Stub only");
     }
 
-    public boolean reload() {
+    public void reload() {
+        throw new UnsupportedOperationException("Stub only");
+    }
+
+    public java.util.Map<String, ?> getAll() {
         throw new UnsupportedOperationException("Stub only");
     }
 

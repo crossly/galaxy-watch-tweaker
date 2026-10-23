@@ -108,6 +108,46 @@ public final class SpoofProfile {
         return operatorName;
     }
 
+    public Map<String, String> preferenceValues() {
+        Map<String, String> values = new LinkedHashMap<>();
+        values.put(TweakerPreferences.KEY_SPOOF_MANUFACTURER, manufacturer);
+        values.put(TweakerPreferences.KEY_SPOOF_BRAND, brand);
+        values.put(TweakerPreferences.KEY_SPOOF_MODEL, model);
+        values.put(TweakerPreferences.KEY_SPOOF_DEVICE, device);
+        values.put(TweakerPreferences.KEY_SPOOF_PRODUCT, product);
+        values.put(TweakerPreferences.KEY_SPOOF_FINGERPRINT, fingerprint);
+        values.put(TweakerPreferences.KEY_SPOOF_SALES_CODE, salesCode);
+        values.put(TweakerPreferences.KEY_SPOOF_COUNTRY_ISO, countryIso);
+        values.put(TweakerPreferences.KEY_SPOOF_MCC, mcc);
+        values.put(TweakerPreferences.KEY_SPOOF_MNC, mnc);
+        values.put(TweakerPreferences.KEY_SPOOF_OPERATOR, operator);
+        values.put(TweakerPreferences.KEY_SPOOF_OPERATOR_NAME, operatorName);
+        return values;
+    }
+
+    public static SpoofProfile fromPreferences(Map<String, ?> values) {
+        SpoofProfile defaults = defaults();
+        return new SpoofProfile(
+                value(values, TweakerPreferences.KEY_SPOOF_MANUFACTURER, defaults.manufacturer),
+                value(values, TweakerPreferences.KEY_SPOOF_BRAND, defaults.brand),
+                value(values, TweakerPreferences.KEY_SPOOF_MODEL, defaults.model),
+                value(values, TweakerPreferences.KEY_SPOOF_DEVICE, defaults.device),
+                value(values, TweakerPreferences.KEY_SPOOF_PRODUCT, defaults.product),
+                value(values, TweakerPreferences.KEY_SPOOF_FINGERPRINT, defaults.fingerprint),
+                value(values, TweakerPreferences.KEY_SPOOF_SALES_CODE, defaults.salesCode),
+                value(values, TweakerPreferences.KEY_SPOOF_COUNTRY_ISO, defaults.countryIso),
+                value(values, TweakerPreferences.KEY_SPOOF_MCC, defaults.mcc),
+                value(values, TweakerPreferences.KEY_SPOOF_MNC, defaults.mnc),
+                value(values, TweakerPreferences.KEY_SPOOF_OPERATOR, defaults.operator),
+                value(values, TweakerPreferences.KEY_SPOOF_OPERATOR_NAME, defaults.operatorName));
+    }
+
+    private static String value(Map<String, ?> values, String key, String fallback) {
+        Object value = values.get(key);
+        return value instanceof String
+                ? TweakerPreferences.nonBlankOrDefault((String) value, fallback) : fallback;
+    }
+
     public Map<String, String> buildFields() {
         Map<String, String> fields = new LinkedHashMap<>();
         fields.put("MANUFACTURER", manufacturer);

@@ -1,7 +1,9 @@
 package dev.ricky.galaxywatchtweaker.core;
 
 import dev.ricky.galaxywatchtweaker.settings.SpoofProfile;
-import dev.ricky.galaxywatchtweaker.settings.TweakerPreferences;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Map;
 
 public final class CompanionIdentityPolicy {
     public static final String KEY_MANUFACTURER = "key_manufacturer";
@@ -21,7 +23,7 @@ public final class CompanionIdentityPolicy {
             SpoofProfile profile) {
         if (KEY_MANUFACTURER.equals(preferenceKey)
                 || FEATURE_VENDOR.equals(preferenceKey)) {
-            return profile.manufacturer().toUpperCase();
+            return profile.manufacturer().toUpperCase(Locale.ROOT);
         }
         if (KEY_MODEL_NUMBER.equals(preferenceKey)
                 || FEATURE_MODEL_NUMBER.equals(preferenceKey)) {
@@ -32,6 +34,14 @@ public final class CompanionIdentityPolicy {
             return profile.salesCode();
         }
         return originalValue;
+    }
+
+    public static Map<Object, Object> outboundFeatureData(Map<?, ?> data, SpoofProfile profile) {
+        Map<Object, Object> updated = new LinkedHashMap<>(data);
+        for (String key : new String[]{FEATURE_VENDOR, FEATURE_MODEL_NUMBER, FEATURE_CSC}) {
+            if (data.containsKey(key)) updated.put(key, spoofedValueFor(key, null, profile));
+        }
+        return updated;
     }
 
     public static boolean shouldSpoof(String preferenceKey) {
@@ -86,7 +96,7 @@ public final class CompanionIdentityPolicy {
     }
 
     public static String toWatchCompatibleModel(String model) {
-        if (TweakerPreferences.DEFAULT_SPOOF_MODEL.equals(model)) {
+        if ("SM-S938U1".equals(model)) {
             return WATCH_COMPATIBLE_MODEL;
         }
         return model;

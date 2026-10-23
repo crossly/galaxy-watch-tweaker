@@ -34,6 +34,8 @@ public final class ModernHookEntry extends XposedModule {
 
     @Override
     public void onPackageLoaded(PackageLoadedParam param) {
+        // The early default class loader is API 29+. Older devices use onPackageReady below.
+        if (android.os.Build.VERSION.SDK_INT < 29) return;
         XC_LoadPackage.LoadPackageParam legacyParam = new XC_LoadPackage.LoadPackageParam();
         legacyParam.packageName = param.getPackageName();
         legacyParam.processName = currentProcessName;

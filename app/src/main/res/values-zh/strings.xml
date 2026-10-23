@@ -9,7 +9,8 @@
     <string name="section_watch_companion">手表连接</string>
     <string name="section_connection_recovery">连接恢复</string>
     <string name="section_watch_display_name">手表名称</string>
-    <string name="section_spoof_profile">伪装设备</string>
+    <string name="section_spoof_profile">SHM 伪装设备</string>
+    <string name="companion_profile_notice">手机身份：%1$s / %2$s。首次打开应用后会保持此身份稳定，下方编辑和恢复预设仅影响 SHM。已配对手表请保持手机身份相关开关不变。</string>
     <string name="section_version_matrix">版本信息</string>
     <string name="shm_patch_title">解锁血压和心电</string>
     <string name="shm_patch_description">把手机识别为支持 SHM 的美版三星机型。</string>
@@ -18,7 +19,7 @@
     <string name="capability_exchange_title">同步手表信息</string>
     <string name="capability_exchange_description">向手表发送美版机型和地区信息。</string>
     <string name="connection_recovery_title">自动恢复连接</string>
-    <string name="connection_recovery_description">手表连接状态异常时自动刷新系统记录。</string>
+    <string name="connection_recovery_description">为已配对的手表请求重连，由系统确认实际连接状态。</string>
     <string name="watch_alias_override_title">自定义显示名称</string>
     <string name="watch_alias_override_description">修改 Wearable 中显示的手表名，不改产品名称。</string>
     <string name="field_watch_alias_name">显示名称</string>

@@ -10,9 +10,9 @@ android {
 
     def releaseVersionCode = providers.gradleProperty("releaseVersionCode")
             .map { it as Integer }
-            .orElse(1)
+            .orElse(104)
     def releaseVersionName = providers.gradleProperty("releaseVersionName")
-            .orElse("0.1.0")
+            .orElse("0.1.4")
 
     defaultConfig {
         applicationId "dev.ricky.galaxywatchtweaker"
@@ -42,8 +42,9 @@ android {
     }
 
     lint {
-        // AndroidX lifecycle lint crashes with Kotlin 2.0 analysis APIs in release lint.
+        // These AndroidX detectors use Kotlin analysis APIs incompatible with this AGP version.
         disable += "NullSafeMutableLiveData"
+        disable += ["RememberInComposition", "FrequentlyChangingValue"]
     }
 
     packaging {
@@ -71,6 +72,8 @@ dependencies {
     }
 
     debugImplementation "androidx.compose.ui:ui-tooling:1.7.6"
+    testImplementation project(":xposed-stubs")
+    testImplementation "io.github.libxposed:api:101.0.1"
     testImplementation "junit:junit:4.13.2"
     testImplementation "org.json:json:20250517"
 }

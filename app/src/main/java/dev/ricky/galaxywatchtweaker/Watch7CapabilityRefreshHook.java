@@ -1,158 +1,136 @@
 package dev.ricky.galaxywatchtweaker;
 
+import android.os.Handler;
+import android.os.Looper;
+
+import java.util.Map;
+
+import dev.ricky.galaxywatchtweaker.core.CapabilityRefreshCoordinator;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 public final class Watch7CapabilityRefreshHook {
-    private static final String TAG_PREFIX = "GalaxyWatchTweaker: ";
     private static final String CAPABILITY_COMPANION =
             "com.samsung.android.companionservice.service.CapabilityCompanion";
     private static final String WATCH =
             "com.google.android.libraries.wear.companion.watch.Watch";
     private static final String CONNECTION_STATE =
             "com.google.android.libraries.wear.companion.watch.ConnectionState";
-    private static final long FIRST_REFRESH_DELAY_MS = 15_000L;
-    private static final long SECOND_REFRESH_DELAY_MS = 75_000L;
-    private static final Set<String> scheduledBtAddresses =
-            Collections.synchronizedSet(new HashSet<>());
-    private static volatile boolean installed;
+    private static final Handler handler = new Handler(Looper.getMainLooper());
+    private static final CapabilityRefreshCoordinator refresh = new CapabilityRefreshCoordinator(
+            new CapabilityRefreshCoordinator.Scheduler() {
+                public void postDelayed(Runnable task, long delayMs) { handler.postDelayed(task, delayMs); }
+                public void remove(Runnable task) { handler.removeCallbacks(task); }
+            }, Watch7CapabilityRefreshHook::requestCapabilityExchange);
+    private static boolean connectionHookInstalled;
+    private static boolean initHookInstalled;
 
     private Watch7CapabilityRefreshHook() {
     }
 
-    public static void install(ClassLoader classLoader) {
-        if (installed) {
-            return;
-        }
-        installed = true;
-
-        boolean hooked = false;
-        try {
-            hookCapabilityInit(classLoader);
-            hooked = true;
-        } catch (Throwable t) {
-            log("Watch7 capability init refresh hook unavailable: " + t);
-        }
-
-        try {
-            hookConnectionState(classLoader);
-            hooked = true;
-        } catch (Throwable t) {
-            log("Watch7 capability connection refresh hook unavailable: " + t);
-        }
-
-        if (hooked) {
-            log("hooked Watch7 capability refresh");
-        }
-    }
-
-    private static void hookCapabilityInit(ClassLoader classLoader) {
-        XposedHelpers.findAndHookMethod(
-                CAPABILITY_COMPANION,
-                classLoader,
-                "init",
-                XposedHelpers.findClass("androidx.lifecycle.LifecycleOwner", classLoader),
-                new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) {
-                        scheduleKnownWatchRefreshes(param.thisObject);
-                    }
-                });
-    }
-
-    private static void hookConnectionState(ClassLoader classLoader) {
-        XposedHelpers.findAndHookMethod(
-                CAPABILITY_COMPANION,
-                classLoader,
-                "onConnectionStateChanged",
-                XposedHelpers.findClass(WATCH, classLoader),
-                XposedHelpers.findClass(CONNECTION_STATE, classLoader),
-                new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) {
-                        if (!isConnectedState(param.args[1])) {
-                            return;
-                        }
-
-                        Object btAddr = XposedHelpers.getObjectField(
-                                param.thisObject,
-                                "mLastestConnectedBtAddr");
-                        if (btAddr == null || btAddr.toString().trim().isEmpty()) {
-                            log("skip WCS refresh: btAddr unavailable");
-                            return;
-                        }
-                        scheduleRefresh(param.thisObject, btAddr.toString());
-                    }
-                });
-    }
-
-    private static void scheduleKnownWatchRefreshes(Object capabilityCompanion) {
-        try {
-            Object pairedWatch = XposedHelpers.callMethod(capabilityCompanion, "getPairedWatch");
-            if (!(pairedWatch instanceof Map)) {
-                log("skip WCS refresh: paired watch map unavailable");
-                return;
+    public static synchronized void install(ClassLoader classLoader) {
+        if (!connectionHookInstalled) {
+            try {
+                XposedHelpers.findAndHookMethod(CAPABILITY_COMPANION, classLoader,
+                        "onConnectionStateChanged", XposedHelpers.findClass(WATCH, classLoader),
+                        XposedHelpers.findClass(CONNECTION_STATE, classLoader), new XC_MethodHook() {
+                            @Override
+                            protected void afterHookedMethod(MethodHookParam param) {
+                                if (param.hasThrowable()) return;
+                                try {
+                                    boolean connected = isConnectedState(param.args[1]);
+                                    String address = addressFor(param.thisObject, param.args[0], connected);
+                                    handler.post(() -> {
+                                        if (address != null) {
+                                            refresh.onConnectionChanged(param.thisObject, address, connected);
+                                        } else if (!connected) {
+                                            // Unknown watch: cancel rather than send to a stale last-connected address.
+                                            refresh.cancel(param.thisObject);
+                                        }
+                                    });
+                                } catch (Throwable t) {
+                                    handler.post(() -> refresh.cancel(param.thisObject));
+                                    log("connection refresh skipped: " + t);
+                                }
+                            }
+                        });
+                connectionHookInstalled = true;
+            } catch (Throwable t) {
+                log("connection refresh hook unavailable: " + t);
             }
+        }
+        if (!initHookInstalled) {
+            try {
+                XposedHelpers.findAndHookMethod(CAPABILITY_COMPANION, classLoader, "init",
+                        XposedHelpers.findClass("androidx.lifecycle.LifecycleOwner", classLoader),
+                        new XC_MethodHook() {
+                            @Override
+                            protected void afterHookedMethod(MethodHookParam param) {
+                                if (!param.hasThrowable()) {
+                                    handler.post(() -> scheduleConnectedWatchRefreshes(param.thisObject));
+                                }
+                            }
+                        });
+                initHookInstalled = true;
+            } catch (Throwable t) {
+                log("init refresh hook unavailable: " + t);
+            }
+        }
+    }
 
-            for (Object btAddr : ((Map<?, ?>) pairedWatch).keySet()) {
-                scheduleRefresh(capabilityCompanion, String.valueOf(btAddr));
+    private static String addressFor(Object companion, Object watch, boolean connected) {
+        Object paired = XposedHelpers.callMethod(companion, "getPairedWatch");
+        if (!(paired instanceof Map)) return null;
+        Map<?, ?> watches = (Map<?, ?>) paired;
+        for (Map.Entry<?, ?> entry : watches.entrySet()) {
+            if (watch != null && entry.getValue() == watch && entry.getKey() instanceof String) {
+                return (String) entry.getKey();
+            }
+        }
+        // Older plugins expose only mLastestConnectedBtAddr. Use it only on a connected event
+        // with exactly one paired watch; never use it to attribute another watch's disconnect.
+        if (connected && watches.size() == 1) {
+            Object latest = XposedHelpers.getObjectField(companion, "mLastestConnectedBtAddr");
+            if (latest instanceof String && watches.containsKey(latest)) return (String) latest;
+        }
+        return null;
+    }
+
+    private static void scheduleConnectedWatchRefreshes(Object companion) {
+        try {
+            Object paired = XposedHelpers.callMethod(companion, "getPairedWatch");
+            if (!(paired instanceof Map)) return;
+            for (Map.Entry<?, ?> entry : ((Map<?, ?>) paired).entrySet()) {
+                try {
+                    if (entry.getKey() instanceof String && entry.getValue() != null
+                            && isConnectedState(XposedHelpers.callMethod(entry.getValue(), "getConnectionState"))) {
+                        refresh.onConnectionChanged(companion, (String) entry.getKey(), true);
+                    }
+                } catch (Throwable t) {
+                    // Unsupported watch API: wait for the real connection-state callback.
+                    log("initial watch state unavailable; waiting for connection callback");
+                }
             }
         } catch (Throwable t) {
-            log("skip WCS refresh from init: " + t);
+            log("init refresh skipped: " + t);
         }
     }
 
-    private static boolean isConnectedState(Object connectionState) {
+    private static boolean isConnectedState(Object state) {
+        return state != null && Boolean.TRUE.equals(XposedHelpers.callMethod(state, "isConnected"));
+    }
+
+    private static void requestCapabilityExchange(Object companion, String address) {
         try {
-            return Boolean.TRUE.equals(XposedHelpers.callMethod(connectionState, "isConnected"));
+            XposedHelpers.callMethod(companion, "requestCapabilityExchange", address);
+            log("requested WCS capability refresh for connected watch");
         } catch (Throwable t) {
-            log("skip WCS refresh: connection state unavailable: " + t);
-            return false;
-        }
-    }
-
-    private static void scheduleRefresh(Object capabilityCompanion, String btAddr) {
-        if (capabilityCompanion == null || btAddr == null || btAddr.trim().isEmpty()) {
-            log("skip WCS refresh: btAddr unavailable");
-            return;
-        }
-
-        String normalizedBtAddr = btAddr.trim().toUpperCase();
-        if (!scheduledBtAddresses.add(normalizedBtAddr)) {
-            log("skip WCS refresh: already scheduled for " + normalizedBtAddr);
-            return;
-        }
-
-        Thread worker = new Thread(() -> {
-            HookUtils.sleep(FIRST_REFRESH_DELAY_MS);
-            requestCapabilityExchange(capabilityCompanion, normalizedBtAddr, "first");
-            HookUtils.sleep(SECOND_REFRESH_DELAY_MS - FIRST_REFRESH_DELAY_MS);
-            requestCapabilityExchange(capabilityCompanion, normalizedBtAddr, "retry");
-        }, "GalaxyWatchTweaker-WCS");
-        worker.setDaemon(true);
-        worker.start();
-        log("scheduled WCS capability refresh for " + normalizedBtAddr);
-    }
-
-    private static void requestCapabilityExchange(
-            Object capabilityCompanion,
-            String btAddr,
-            String attempt) {
-        try {
-            XposedHelpers.callMethod(capabilityCompanion, "requestCapabilityExchange", btAddr);
-            log("requested WCS capability refresh " + attempt + " for " + btAddr);
-        } catch (Throwable t) {
-            log("WCS capability refresh " + attempt + " failed for " + btAddr + ": " + t);
+            log("WCS capability refresh failed: " + t);
         }
     }
 
     private static void log(String message) {
-        XposedBridge.log(TAG_PREFIX + message);
+        XposedBridge.log("GalaxyWatchTweaker: " + message);
     }
 }

@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 public class HookEntrySourceTest {
     @Test
@@ -30,7 +31,8 @@ public class HookEntrySourceTest {
                 "app/src/main/java/dev/ricky/galaxywatchtweaker/CompanionPresenceRecoveryHook.java");
 
         assertTrue(source.contains("com.android.server.companion.CompanionDeviceManagerService"));
-        assertTrue(source.contains("onBluetoothCompanionDeviceConnected"));
+        assertFalse("Recovery must let Android report the actual connection",
+                source.contains("onBluetoothCompanionDeviceConnected"));
     }
 
     @Test
@@ -43,7 +45,8 @@ public class HookEntrySourceTest {
         assertTrue(source.contains("onBleCompanionDeviceFound"));
         assertTrue(source.contains("requestBluetoothConnection"));
         assertTrue(source.contains("\"connect\""));
-        assertTrue(source.contains("watch reappeared"));
+        assertTrue(source.contains("getBondState"));
+        assertTrue(source.contains("findActiveAssociation"));
     }
 
     @Test
@@ -58,7 +61,7 @@ public class HookEntrySourceTest {
     }
 
     @Test
-    public void frameworkRecoveryMarksAssociationObservedBeforeConnectedEvent() throws Exception {
+    public void frameworkRecoveryKeepsExistingAssociationsObserved() throws Exception {
         String source = read(
                 "app/src/main/java/dev/ricky/galaxywatchtweaker/CompanionPresenceRecoveryHook.java");
 
@@ -111,8 +114,8 @@ public class HookEntrySourceTest {
         assertTrue(hookSource.contains("\"e\""));
         assertTrue(hookSource.contains("findSingleArgumentMethod"));
         assertTrue(hookSource.contains("XposedBridge.hookMethod"));
-        assertTrue(hookSource.contains("\"q\""));
-        assertTrue(hookSource.contains("profile.manufacturer().toUpperCase()"));
+        assertTrue(hookSource.contains("new CompanionIdentityModel(type)"));
+        assertTrue(hookSource.contains("profile.manufacturer().toUpperCase(Locale.ROOT)"));
     }
 
     @Test
@@ -129,14 +132,14 @@ public class HookEntrySourceTest {
         assertTrue(hookSource.contains(
                 "com.samsung.android.companionservice.capability.CapabilityExchangeSender"));
         assertTrue(hookSource.contains("\"data\""));
-        assertTrue(hookSource.contains("CompanionIdentityPolicy.FEATURE_VENDOR"));
-        assertTrue(hookSource.contains("CompanionIdentityPolicy.FEATURE_MODEL_NUMBER"));
-        assertTrue(hookSource.contains("CompanionIdentityPolicy.FEATURE_CSC"));
+        assertTrue(hookSource.contains("CompanionIdentityPolicy.outboundFeatureData"));
+        assertFalse(hookSource.contains("getDeclaredConstructors"));
+        assertFalse(hookSource.contains("hookMethod(constructor"));
         assertTrue(policySource.contains("FEATURE_VENDOR = \"vender\""));
         assertTrue(policySource.contains("FEATURE_MODEL_NUMBER = \"modelNumber\""));
         assertTrue(policySource.contains("FEATURE_CSC = \"csc\""));
         assertTrue(hookSource.contains("setCapabilityMessage"));
-        assertTrue(hookSource.contains("profile.salesCode()"));
+        assertTrue(policySource.contains("profile.salesCode()"));
     }
 
     @Test
@@ -151,7 +154,8 @@ public class HookEntrySourceTest {
         assertTrue(hookSource.contains("onConnectionStateChanged"));
         assertTrue(hookSource.contains("mLastestConnectedBtAddr"));
         assertTrue(hookSource.contains("requestCapabilityExchange"));
-        assertTrue(hookSource.contains("GalaxyWatchTweaker-WCS"));
+        assertTrue(hookSource.contains("refresh.onConnectionChanged"));
+        assertTrue(hookSource.contains("refresh.cancel"));
     }
 
     private static String read(String path) throws Exception {

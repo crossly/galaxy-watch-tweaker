@@ -11,7 +11,7 @@ The Android package is `dev.ricky.galaxywatchtweaker`, so it can install side by
 - Toggle Watch capability exchange spoofing for Watch7 Plugin feature data.
 - Toggle Android CompanionDeviceManager connection recovery in `system_server`.
 - Override the watch display name shown by Galaxy Wearable without changing the fixed product name.
-- Edit the spoofed Samsung phone profile from the app UI.
+- Edit the SHM phone profile from the app UI while keeping the companion identity stable.
 - Restore the built-in Galaxy S25 Ultra US preset.
 - View detected package versions for phone SHM, Watch SHM, Watch Manager, Watch7 Plugin, and Google Wear.
 
@@ -31,6 +31,20 @@ Operator name: T-Mobile
 ```
 
 Watch-facing compatibility paths intentionally map `SM-S938U1` to `SM-S938U`, because some Samsung companion payloads expect the carrier model rather than the unlocked model suffix.
+
+## Reconnection and identity stability (0.1.4)
+
+Connection recovery requests Bluetooth connections only for active Watch7 Plugin associations whose devices are still bonded. It never reports a synthetic Bluetooth-connected event. Android owns connection-state notifications, including failures and disconnects. Requests are throttled using elapsed time and delayed work runs on the main handler; BLE disappearance cancels pending BLE recovery.
+
+Capability refresh runs after a connected state, with attempts at 15 and 75 seconds. A disconnect cancels both attempts, and a later reconnect starts a new session. Sessions are isolated by companion instance and watch address, so stale callbacks cannot refresh a later session. Unknown watch/state APIs are skipped rather than guessing a connection or address.
+
+Only outbound capability messages are rewritten, and only identity fields already present in those messages. Received watch messages, pairing identifiers, and unrelated capability fields are preserved. The exact `SM-S938U1` to `SM-S938U` compatibility mapping remains unchanged. Ambiguous obfuscated methods or unsupported identity field layouts are rejected.
+
+At the first app launch after this update, the existing configured profile is saved separately for companion identity and capability exchange. Later profile edits and Restore preset affect SHM only; the Profile page displays the saved companion model and CSC. All hooks in a process read one configuration snapshot. An unreadable or empty configuration skips hooks instead of substituting a default identity.
+
+**Upgrade:** install the signed release over the existing installation, open Galaxy Watch Tweaker once to save/sync the current identity, then reboot the phone. Keep the companion identity and capability switches in their existing states for an already paired watch. Do not clear module, plugin, or Wear app data as part of this update. The module cannot discover the identity recorded by an earlier pairing or restore data already erased.
+
+The regression suite covers connection request preconditions/cooldowns, disconnect/reconnect sessions, stale callbacks, independent watches, saved identity migration, atomic configuration reads, reflection contracts, and outbound message preservation. No watch/phone is attached to the release development environment: the reported watch wipe has not been reproduced, and these fixes do not establish its root cause.
 
 ## Version Matrix
 

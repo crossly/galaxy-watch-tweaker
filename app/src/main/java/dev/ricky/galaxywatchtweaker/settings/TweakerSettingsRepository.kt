@@ -3,7 +3,9 @@ package dev.ricky.galaxywatchtweaker.settings
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.util.Log
 import dev.ricky.galaxywatchtweaker.GalaxyWatchTweakerApplication
+import dev.ricky.galaxywatchtweaker.core.CompanionIdentityPolicy
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,6 +16,7 @@ class TweakerSettingsRepository(context: Context) {
     private val mutableSettings = MutableStateFlow(preferences.readSettings())
 
     init {
+        pinCompanionProfile()
         syncRemotePreferences()
     }
 
@@ -58,14 +61,17 @@ class TweakerSettingsRepository(context: Context) {
     }
 
     private fun update(block: SharedPreferences.Editor.() -> Unit) {
-        preferences.edit().apply(block).commit()
-        updateRemotePreferences(block)
+        check(preferences.edit().apply(block).commit()) { "Unable to save settings" }
+        syncRemotePreferences()
         mutableSettings.value = preferences.readSettings()
     }
 
     fun syncRemotePreferences() {
         val settings = preferences.readSettings()
         updateRemotePreferences {
+            CompanionProfilePolicy.pinnedValues(preferences.all).forEach { (key, value) ->
+                putString(key, value)
+            }
             putBoolean(TweakerPreferences.KEY_SHM_PATCH_ENABLED, settings.shmPatchEnabled)
             putBoolean(TweakerPreferences.KEY_COMPANION_IDENTITY_ENABLED, settings.companionIdentityEnabled)
             putBoolean(TweakerPreferences.KEY_CAPABILITY_EXCHANGE_ENABLED, settings.capabilityExchangeEnabled)
@@ -87,6 +93,16 @@ class TweakerSettingsRepository(context: Context) {
         }
     }
 
+    private fun pinCompanionProfile() {
+        // On upgrade, preserve the currently configured identity, rather than imposing a new preset.
+        val pinned = CompanionProfilePolicy.pinnedValues(preferences.all)
+        if (pinned.any { (key, value) -> preferences.all[key] != value }) {
+            check(preferences.edit().apply {
+                pinned.forEach { (key, value) -> putString(key, value) }
+            }.commit()) { "Unable to save companion identity" }
+        }
+    }
+
     private fun SharedPreferences.Editor.putDefaultProfile() {
         putString(TweakerPreferences.KEY_SPOOF_MANUFACTURER, TweakerPreferences.DEFAULT_SPOOF_MANUFACTURER)
         putString(TweakerPreferences.KEY_SPOOF_BRAND, TweakerPreferences.DEFAULT_SPOOF_BRAND)
@@ -104,16 +120,17 @@ class TweakerSettingsRepository(context: Context) {
 
     private fun updateRemotePreferences(block: SharedPreferences.Editor.() -> Unit) {
         runCatching {
-            GalaxyWatchTweakerApplication
-                .getRemotePreferences(TweakerPreferences.REMOTE_GROUP)
-                ?.edit()
-                ?.apply(block)
-                ?.commit()
-        }
+            val remote = GalaxyWatchTweakerApplication
+                .getRemotePreferences(TweakerPreferences.REMOTE_GROUP) ?: return
+            check(remote.edit().apply(block).commit()) { "Unable to save remote settings" }
+        }.onFailure { Log.w("GalaxyWatchTweakerConfig", "Unable to sync hook settings", it) }
     }
 
     private fun SharedPreferences.readSettings(): TweakerSettings {
+        val companion = CompanionProfilePolicy.pinnedValues(all)
         return TweakerSettings(
+            companionModel = CompanionIdentityPolicy.toWatchCompatibleModel(companion["companion_spoof_model"]!!),
+            companionSalesCode = companion["companion_spoof_sales_code"]!!,
             shmPatchEnabled = getBoolean(
                 TweakerPreferences.KEY_SHM_PATCH_ENABLED,
                 TweakerPreferences.DEFAULT_SHM_PATCH_ENABLED,

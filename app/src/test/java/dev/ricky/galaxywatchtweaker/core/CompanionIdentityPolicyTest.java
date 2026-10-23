@@ -1,6 +1,8 @@
 package dev.ricky.galaxywatchtweaker.core;
 
 import org.junit.Test;
+import java.util.Locale;
+import java.util.Map;
 
 import dev.ricky.galaxywatchtweaker.settings.SpoofProfile;
 
@@ -73,6 +75,40 @@ public class CompanionIdentityPolicyTest {
     public void passesOtherModelsEndingInOneThroughUnchanged() {
         assertEquals("SM-G9911", CompanionIdentityPolicy.toWatchCompatibleModel("SM-G9911"));
         assertEquals("BKQ-AN91", CompanionIdentityPolicy.toWatchCompatibleModel("BKQ-AN91"));
+    }
+
+    @Test
+    public void outboundRewritePreservesInputAndUnrelatedFields() {
+        Map<String, Object> original = Map.of("vender", "HONOR", "modelNumber", "PHONE",
+                "csc", "CHC", "pairing_token", "keep", "watch_id", "keep-too");
+        Map<Object, Object> updated = CompanionIdentityPolicy.outboundFeatureData(original, PROFILE);
+        assertEquals("SAMSUNG", updated.get("vender"));
+        assertEquals("SM-S938U", updated.get("modelNumber"));
+        assertEquals("XAA", updated.get("csc"));
+        assertEquals("keep", updated.get("pairing_token"));
+        assertEquals("keep-too", updated.get("watch_id"));
+        assertEquals("HONOR", original.get("vender"));
+        assertEquals(original.size(), updated.size());
+    }
+
+    @Test
+    public void nonIdentityMessagesDoNotAcquirePhoneIdentityFields() {
+        Map<String, Object> data = Map.of("watch_id", "abc");
+        assertEquals(data, CompanionIdentityPolicy.outboundFeatureData(data, PROFILE));
+        assertTrue(CompanionIdentityPolicy.outboundFeatureData(Map.of(), PROFILE).isEmpty());
+    }
+
+    @Test
+    public void manufacturerDoesNotChangeWithPhoneLocale() {
+        Locale previous = Locale.getDefault();
+        try {
+            Locale.setDefault(Locale.forLanguageTag("tr-TR"));
+            Map<String, Object> prefs = Map.of("spoof_manufacturer", "indigo");
+            assertEquals("INDIGO", CompanionIdentityPolicy.spoofedValueFor("vender", "original",
+                    SpoofProfile.fromPreferences(prefs)));
+        } finally {
+            Locale.setDefault(previous);
+        }
     }
 
     @Test

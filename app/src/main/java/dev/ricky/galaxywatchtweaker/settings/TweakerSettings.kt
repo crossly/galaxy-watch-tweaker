@@ -1,6 +1,8 @@
 package dev.ricky.galaxywatchtweaker.settings
 
 data class TweakerSettings(
+    val companionModel: String = "SM-S938U",
+    val companionSalesCode: String = TweakerPreferences.DEFAULT_SPOOF_SALES_CODE,
     val shmPatchEnabled: Boolean = TweakerPreferences.DEFAULT_SHM_PATCH_ENABLED,
     val companionIdentityEnabled: Boolean = TweakerPreferences.DEFAULT_COMPANION_IDENTITY_ENABLED,
     val capabilityExchangeEnabled: Boolean = TweakerPreferences.DEFAULT_CAPABILITY_EXCHANGE_ENABLED,
