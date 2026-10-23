@@ -6,16 +6,18 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import dev.ricky.galaxywatchtweaker.settings.TweakerSettingsViewModel
 import dev.ricky.galaxywatchtweaker.ui.GalaxyWatchTweakerApp
+import dev.ricky.galaxywatchtweaker.update.UpdateCheckerViewModel
 import dev.ricky.galaxywatchtweaker.ui.theme.GalaxyWatchTweakerTheme
 
 class MainActivity : AppCompatActivity() {
     private val viewModel: TweakerSettingsViewModel by viewModels()
+    private val updateViewModel: UpdateCheckerViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             GalaxyWatchTweakerTheme {
-                GalaxyWatchTweakerApp(viewModel = viewModel)
+                GalaxyWatchTweakerApp(viewModel = viewModel, updateViewModel = updateViewModel)
             }
         }
     }

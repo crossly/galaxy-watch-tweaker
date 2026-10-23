@@ -14,6 +14,7 @@ The Android package is `dev.ricky.galaxywatchtweaker`, so it can install side by
 - Edit the SHM phone profile from the app UI while keeping the companion identity stable.
 - Restore the built-in Galaxy S25 Ultra US preset.
 - View detected package versions for phone SHM, Watch SHM, Watch Manager, Watch7 Plugin, and Google Wear.
+- Check for module updates against this repository's GitHub Releases.
 
 ## Default Spoof Profile
 

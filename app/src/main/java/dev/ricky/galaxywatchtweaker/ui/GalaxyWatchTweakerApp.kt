@@ -38,13 +38,22 @@ import dev.ricky.galaxywatchtweaker.R
 import dev.ricky.galaxywatchtweaker.settings.PackageVersions
 import dev.ricky.galaxywatchtweaker.settings.TweakerSettings
 import dev.ricky.galaxywatchtweaker.settings.TweakerSettingsViewModel
+import dev.ricky.galaxywatchtweaker.update.UpdateCheckerViewModel
+import dev.ricky.galaxywatchtweaker.update.UpdateStatus
 
 @Composable
-fun GalaxyWatchTweakerApp(viewModel: TweakerSettingsViewModel) {
+fun GalaxyWatchTweakerApp(
+    viewModel: TweakerSettingsViewModel,
+    updateViewModel: UpdateCheckerViewModel,
+) {
     val settings by viewModel.settings.collectAsState()
+    val updateStatus by updateViewModel.status.collectAsState()
     GalaxyWatchTweakerScreen(
         settings = settings,
         versions = viewModel.packageVersions,
+        currentVersion = updateViewModel.currentVersionName,
+        updateStatus = updateStatus,
+        onCheckForUpdates = updateViewModel::checkForUpdates,
         onShmPatchChanged = viewModel::setShmPatchEnabled,
         onCompanionIdentityChanged = viewModel::setCompanionIdentityEnabled,
         onCapabilityExchangeChanged = viewModel::setCapabilityExchangeEnabled,
@@ -60,6 +69,9 @@ fun GalaxyWatchTweakerApp(viewModel: TweakerSettingsViewModel) {
 private fun GalaxyWatchTweakerScreen(
     settings: TweakerSettings,
     versions: PackageVersions,
+    currentVersion: String,
+    updateStatus: UpdateStatus,
+    onCheckForUpdates: () -> Unit,
     onShmPatchChanged: (Boolean) -> Unit,
     onCompanionIdentityChanged: (Boolean) -> Unit,
     onCapabilityExchangeChanged: (Boolean) -> Unit,
@@ -144,7 +156,12 @@ private fun GalaxyWatchTweakerScreen(
                         onSpoofValueChanged = onSpoofValueChanged,
                         onRestoreDefaultProfile = onRestoreDefaultProfile,
                     )
-                    else -> versionsPage(versions)
+                    else -> versionsPage(
+                        versions = versions,
+                        currentVersion = currentVersion,
+                        updateStatus = updateStatus,
+                        onCheckForUpdates = onCheckForUpdates,
+                    )
                 }
             }
         }

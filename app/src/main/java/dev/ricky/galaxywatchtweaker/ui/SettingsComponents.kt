@@ -15,9 +15,11 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import dev.ricky.galaxywatchtweaker.R
 import dev.ricky.galaxywatchtweaker.settings.TweakerPreferences
 
 @Composable
@@ -91,9 +93,7 @@ internal fun VersionListItem(label: String, version: String?) {
         headlineContent = { Text(label, fontWeight = FontWeight.Medium) },
         trailingContent = {
             Text(
-                text = version ?: androidx.compose.ui.res.stringResource(
-                    dev.ricky.galaxywatchtweaker.R.string.version_unknown,
-                ),
+                text = version ?: stringResource(R.string.version_unknown),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Galaxy Watch Tweaker</string>
-    <string name="module_description">Tunes Galaxy Watch companion, Samsung Health Monitor, and connection recovery behavior on Honor MagicOS.</string>
+    <string name="module_description">Enable Galaxy Watch companion, Samsung Health Monitor, and connection recovery features on non-Samsung phones.</string>
     <string-array name="xposedscope">
         <item>android</item>
         <item>system</item>
@@ -25,7 +25,7 @@
     <string name="companion_identity_title">Companion Identity</string>
     <string name="companion_identity_description">Spoofs phone identity fields written by Watch Plugin and Google Wear companion paths.</string>
     <string name="capability_exchange_title">Capability exchange spoof</string>
-    <string name="capability_exchange_description">Rewrites Watch Plugin feature exchange fields such as vender, modelNumber, and csc.</string>
+    <string name="capability_exchange_description">Rewrites the phone identity the Watch Plugin sends to the watch.</string>
     <string name="connection_recovery_title">Companion connection recovery</string>
     <string name="connection_recovery_description">Requests reconnection for an already paired watch. Android reports the actual connection state.</string>
     <string name="watch_alias_override_title">Override display name</string>
@@ -53,4 +53,13 @@
     <string name="version_unknown">Not detected</string>
     <string name="version_watch_side_only">Watch-side only</string>
     <string name="version_supported_hint">Verified baseline: Phone SHM 1.4.6.003 / Watch SHM 1.4.6.003</string>
+    <string name="section_updates">Updates</string>
+    <string name="update_current_version">Current version</string>
+    <string name="update_status_idle">Not checked yet.</string>
+    <string name="update_status_checking">Checking for updates…</string>
+    <string name="update_status_up_to_date">You are up to date.</string>
+    <string name="update_status_available">Version %1$s is available.</string>
+    <string name="update_status_failed">Unable to check for updates. Check your connection and try again.</string>
+    <string name="update_action_check">Check for updates</string>
+    <string name="update_action_download">Download</string>
 </resources>
