@@ -10,9 +10,9 @@ android {
 
     def releaseVersionCode = providers.gradleProperty("releaseVersionCode")
             .map { it as Integer }
-            .orElse(104)
+            .orElse(105)
     def releaseVersionName = providers.gradleProperty("releaseVersionName")
-            .orElse("0.1.4")
+            .orElse("0.1.5")
 
     defaultConfig {
         applicationId "dev.ricky.galaxywatchtweaker"
