@@ -357,6 +357,64 @@ Tag 10 内部包含路由与调度元数据：
 * 由此还能反推出每个表盘的准确 Service 类名 —— 文件名前缀即包名，后缀即类名。
 * 本项目用 `scripts/gen_watchface_assets.py` 把这些 webp 转成 `drawable-nodpi/wf_<id>.webp` 并自动生成 `WatchFacePreset.kt`。
 
+#### 6.3.5 表盘排序方式写入（已实机验证）
+* **msgId**：`watchface_order_type`，**msgType=1 为写请求**、`3` 为回执。
+* **载荷映射**（对应手表端 `WatchfaceApiStub.setWatchfaceOrderTypeWithSync(type)`）：
+
+| `type` | `WatchFaceOrderType` | `isWatchSortByRecentsEnabled` | 含义 |
+|:---:|:---|:---:|:---|
+| 0 | `custom` | `false` | 自定义顺序 |
+| 1 | `recent` | `true` | 最近使用优先 |
+| 2 | `alphabetic` | `false` | 字母序 |
+
+* 实机回执：`{"msgId":"watchface_order_type","msgType":3,"result":0,"reason":0,"data":{}}`，
+  随后 `watchface_order` 的 `favoriteIdOrderList` 会按新模式重排。
+
+#### 6.3.5.1 表盘「数据位 / 复杂功能」配置能力边界（重要结论）
+
+**结论：三星 WCS 直连协议不提供表盘数据位的远程读/写能力。**
+
+证据一 —— 手表端只接受 5 个 msgId（`WatchfaceApiStub.onMsgRecvListener` 反编译，`default` 分支直接抛 `unknown msg id`）：
+
+| 常量 | msgId | 可选 msgType |
+|:---|:---|:---|
+| `MSG_ID_WATCHFACE_ORDER` | `watchface_order` | 0 查询 / 1 变更通知 |
+| `MSG_ID_WATCHFACE_ORDER_TYPE` | `watchface_order_type` | 0 查询 / 1 写入 |
+| `MSG_ID_WATCHFACE_ACTIVE` | `change_active_watchface` | 0 查询 / 1 写入 |
+| `MSG_ID_ADDABLE_WATCHFACE_INFO` | `addable_watchface_info` | 0 查询 / 1 推送 |
+| `MSG_ID_WATCHFACE_LAUNCH` | `watchface_launch` | **仅 3（回执）** |
+
+证据二 —— `watchface_setting` 只是**手表本地 SharedPreferences 的名字**（`WatchfaceSettingProvider`，authority `com.samsung.android.wcs.extension.provider.watchface`，唯一 path `order_type`），不是远程配置通道。
+
+证据三 —— `watchface_launch` 实测：手机 → 手表发 `msgType=1` 直接失败：
+```json
+{"msgId":"watchface_launch","msgType":3,"result":-1,"reason":-1,"data":{}}
+```
+因为 `handleWatchfaceLaunchMessage` 只处理 `msgType==3`，说明它的真实方向是 **手表 → 手机**：
+用户在手表上点「在手机上编辑表盘」时，手表发 `watchface_launch` 请求，手机侧伴侣 App 打开编辑器后回 `msgType=3`。
+
+证据四 —— `addable_watchface_info` 实测只返回角标：
+```json
+{"msgId":"addable_watchface_info","msgType":1,"data":{"watchfaceBadgeList":"[]"}}
+```
+不含数据位定义。
+
+**真正的数据位编辑链路在哪？** 在 Google 的 Wear OS 伴侣 SDK（Galaxy Wearable 插件内嵌）：
+* `com.google.android.libraries.wear.companion.watchfaces.editor.LiveWatchFaceEditor`
+  （`startEditing` / `getComplicationSlots` / `setComplication` / `setStyle` / `saveChanges` / `getPreview`）
+* 实现体在 GMS 私有包 `com.google.android.gms.internal.wear_companion.*`，走独立的 GMS Wearable RPC
+  （相关路径串：`/wearservices/watchface/resync`、`/wearservices/sync/available_watchface`），
+  而不是三星 WCS 通道；GMS 侧按调用方包名做门控。
+
+因此本项目**不再尝试伪造该链路**，而是：
+1. 表盘选择 / 收藏排序 / 排序方式 走 WCS（已全部打通）；
+2. 数据位与配色样式引导用户在手表上「长按表盘 → 编辑」完成；
+3. 监听手表侧 `watchface_launch` 请求并给出对应引导。
+
+> 若要继续攻这条线，下一步应做：在装有官方 Galaxy Wearable 的手机上抓 HCI Snoop，过滤
+> `/wearservices/watchface/`，反解 `startEditing`/`setComplication` 的 protobuf 字段号，
+> 再用本项目 RFCOMM 通道复刻 —— 属于独立的大工程，需单独立项。
+
 ### 6.4 通知桥接与即时下发协议
 * **通道规范**：Wear OS 原生 Bridger DataItem
 * **URI 格式**：`wear://<phoneNode>/bridger/stream_item:<notification_key_hash>`
