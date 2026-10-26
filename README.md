@@ -4,6 +4,56 @@ LSPosed/Xposed module for running Samsung Galaxy Watch features on non-Samsung p
 
 The Android package is `dev.ricky.galaxywatchtweaker`, so it can install side by side with the older `dev.ricky.galaxywatchselfheal` builds while the product moves to the Galaxy Watch Tweaker brand.
 
+## Protocol research and Galaxy Watch Manager Free
+
+The standalone `watchfree` module has moved to the independent product
+[Galaxy Watch Manager Free](https://github.com/crossly/galaxy-watch-manager-free) (private repository),
+located alongside this workspace at `../galaxy-watch-manager-free`. This project retains the
+LSPosed app and protocol research; its Gradle build no longer includes `:watchfree`.
+
+The module is based on retail APK analysis and live HCI captures. Direct initialization and two 45-second
+observations are verified on an already-paired Honor phone and Galaxy Watch Ultra; fresh pairing, reliable
+cold reconnection, and long-duration operation remain under development. Start here:
+
+| Document | Contents |
+|---|---|
+| [`research/WEAR-TRANSPORT.md`](research/WEAR-TRANSPORT.md) | RFCOMM framing, protobuf envelope, UUID table, node negotiation, connection constraints |
+| [`research/FEATURES.md`](research/FEATURES.md) | All 736 WCS feature paths grouped into 30 subsystems, with real captured payloads |
+| [`research/FEATURE-MATRIX.md`](research/FEATURE-MATRIX.md) | Auto-generated per-path matrix (constants, JSON keys, source files) |
+| [`research/HEALTH-PROTOCOL.md`](research/HEALTH-PROTOCOL.md) | Samsung Health wearable sync protocol, decoded real messages |
+| [`research/HEALTH-ENUMS.md`](research/HEALTH-ENUMS.md) | Sync modules, result codes, sync stages, 128 data types |
+| [`research/LIVE-VERIFICATION.md`](research/LIVE-VERIFICATION.md) | Live capture report (SDP records, frame timings, channel mapping) |
+| [`research/PROTOCOL.md`](research/PROTOCOL.md) | Early static analysis (pairing, SAK, GATT bootstrap) |
+
+Verified findings:
+
+- The data channel uses **classic Bluetooth RFCOMM**, UUID `5e8945b0-9525-11e3-a5e2-0800200c9a66`; channels 5 and 8 were observed.
+- Frames are `[4-byte BE length][protobuf MessagePiece]`. Field 2 is **Base64URL(SHA1(inner))**, not a random request ID; field 5 is a queue ID. WCS payloads commonly contain JSON.
+- Samsung WCS messages use **Google Wear's `MessageClient`**. Connect and SyncStart belong to the Wear transport/data-sync layer; the former name `NodeAlloc` was incorrect.
+- A normal `/data/app` app **can** connect without privileged permissions or HFP hidden APIs. Correcting the digest enabled activation/status responses and 120 DataItem paths while all official companion packages were disabled.
+- Constraint: Android's RFCOMM stack allows only **one client socket per SCN**, so the official Wear/plugin
+  packages must be disabled while the standalone app owns the channel.
+
+### Restoring the phone after debugging
+
+While profiling, the official companion packages are temporarily disabled so the standalone app can own
+RFCOMM channel 8. Restore them with:
+
+```bash
+./research/restore-samsung-packages.sh
+```
+
+### Building the standalone product
+
+```bash
+cd ../galaxy-watch-manager-free
+./gradlew :app:assembleDebug
+./gradlew :app:testDebugUnitTest
+```
+
+Independent product releases, signing configuration, icon artwork and CI are maintained in the new repository.
+
+
 ## Features
 
 - Toggle Samsung Health Monitor patching for `com.samsung.android.shealthmonitor`.
