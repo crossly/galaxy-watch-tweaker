@@ -17,6 +17,7 @@ cold reconnection, and long-duration operation remain under development. Start h
 
 | Document | Contents |
 |---|---|
+| [`research/PROTOCOL-SPEC.md`](research/PROTOCOL-SPEC.md) | **Complete Protocol Specification (SSOT)**: RFCOMM, Protobuf framing, GMS queue generation, WCS JSON RPC, Tag 9 DataItems, Samsung Health 3-stage sync, watchface control, 80+ modules dictionary |
 | [`research/WEAR-TRANSPORT.md`](research/WEAR-TRANSPORT.md) | RFCOMM framing, protobuf envelope, UUID table, node negotiation, connection constraints |
 | [`research/FEATURES.md`](research/FEATURES.md) | All 736 WCS feature paths grouped into 30 subsystems, with real captured payloads |
 | [`research/FEATURE-MATRIX.md`](research/FEATURE-MATRIX.md) | Auto-generated per-path matrix (constants, JSON keys, source files) |
