@@ -218,6 +218,30 @@ Tag 10 内部包含路由与调度元数据：
   5. 手机应答：`message="RESPONSE"`, `action="LOG_DATA"`, `result="SUCCESS"`, sequence=M。
   6. 手表本地固化：执行 `HealthDataResolver.insertOrUpdateSync`，提交 `_last_modified_time` 游标。
 
+#### 5.3.1 `device_info` 字段定义
+```jsonc
+{"device": "BKQ-AN90",        // 手机侧填写本机 Build.MODEL
+ "device_type": 10062,         // 10062 = Wear OS 手表能力档（手机侧声明对端能力）
+ "version": 4.51,              // 能力协议版本
+ "last_sync_time": 1793052221768,
+ "start_time": 0,              // 本次同步窗口起点
+ "end_time": 1793052221768,    // 本次同步窗口终点
+ "is_last_chunk": true}        // 分块传输的末块标记
+```
+
+| `device_type` | 设备 | 能力协议版本 |
+|:---:|:---|:---|
+| 10019 / 10020 / 10022 / 10023 | Gear Fit / Gear1 / Gear2 / Activity Tracker | 1.01 |
+| 10024 / 10030 | Tizen Gear1 / Gear S | 2.01 / 3.01 |
+| **10062** | **Wear OS 手表（Watch4 及以上）** | **4.51** |
+| 0 | 未分类 / 手机侧默认 | — |
+
+#### 5.3.2 游标语义（实测定论）
+* 同步游标由**手表端**持有（存于手表 Shealth DB 的 `_last_modified_time`），手机侧无法直接复位。
+* 实测把 `start_time` 置 `0`、`last_sync_time` 置当前时间，**并不会**触发手表回补全量历史；手表仍只下发“自上次成功固化以来有变更”的行。
+* 因此客户端必须自行持久化最近一次同步到的指标值（步数 / 心率 / 压力），否则重启后会丢失展示数据。
+* 少数“活体”表（如 `com.samsung.shealth.stress.histogram`、`com.samsung.health.movement`）每次同步都会因其 `update_time` 被刷新而重发；其 `histogram` / `binning_data` 字段本身是 **Base64(gzip(二进制分箱数组))**。
+
 ---
 
 ## 6. 核心业务子系统协议详解
@@ -313,6 +337,25 @@ Tag 10 内部包含路由与调度元数据：
 | **渐变流光** | `gradient_modular` | `com.samsung.android.watch.watchface.gradientmodular` | `...gradientmodular.GradientModularWatchFaceService` |
 | **活力条纹** | `stripe_digital` | `com.samsung.android.watch.watchface.stripedigital` | `...stripedigital.StripeDigitalWatchFaceService` |
 | **大字时间** | `large_digits` | `com.samsung.android.watch.watchface.largedigits` | `...largedigits.LargeDigitsWatchFaceService` |
+
+#### 6.3.3 推荐表盘推送通道（手表 → 手机）
+* **路径**：`/w_watchface_home/watchface/msg`
+* **方向**：手表主动下发（手机侧 `type=4` 收到）
+* **载荷**：
+```jsonc
+{
+  "msgId": "watchface_recommend_list_send",
+  "watchface_recommend_list": ["com.samsung.android.watch.watchface.ultrainfoboard_0"]
+}
+```
+* 该通道用于推送三星运营位推荐的表盘（末尾 `_N` 为数据层里的配置序号），可与 `addable_watchface_info` 配合做「推荐表盘」展示。
+
+#### 6.3.4 表盘效果图的获取方式（重要限制）
+* 手表 Display 带 **`FLAG_SECURE`**，`adb shell screencap` 只能拿到黑色/纯色画面（实测 UI 层级里有真实内容但截图为空），**无法用截屏生成表盘预览图**。
+* 可靠来源：Galaxy Wearable 插件（`com.samsung.wearable.watch7plugin`）内置的官方表盘效果图：
+  `assets/Category_watchface/<packageName>.<ServiceSimpleName>.webp`（360×360 RGBA）。
+* 由此还能反推出每个表盘的准确 Service 类名 —— 文件名前缀即包名，后缀即类名。
+* 本项目用 `scripts/gen_watchface_assets.py` 把这些 webp 转成 `drawable-nodpi/wf_<id>.webp` 并自动生成 `WatchFacePreset.kt`。
 
 ### 6.4 通知桥接与即时下发协议
 * **通道规范**：Wear OS 原生 Bridger DataItem
