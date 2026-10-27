@@ -415,6 +415,42 @@ Tag 10 内部包含路由与调度元数据：
 > `/wearservices/watchface/`，反解 `startEditing`/`setComplication` 的 protobuf 字段号，
 > 再用本项目 RFCOMM 通道复刻 —— 属于独立的大工程，需单独立项。
 
+#### 6.3.5.2 GMS Wearable 路线实测结论（2026-10-27）
+
+按「复刻 Google 伴侣编辑器」这条线做了一轮真机探测，记录如下（负结果同样重要）。
+
+**探测手段**：本项目内置 `WearApiTransport`（`com.google.android.gms.wearable.MessageClient`），
+诊断广播：
+
+```bash
+adb shell am broadcast -n dev.ricky.galaxywatchmanagerfree/.core.WatchCommandReceiver \
+  -a dev.ricky.galaxywatchmanagerfree.CMD --es cmd wearapi_start
+adb shell am broadcast ... --es cmd wearapi_send --es path /wearservices/sync/available_watchface \
+  --es b64 <Base64(payload)>
+```
+
+| 步骤 | 现象 | 结论 |
+|---|---|---|
+| 1 | 官方三件套全部 `enabled=3`（DISABLED_USER）时调用 Wearable API | `ApiException 17: Wearable.API is not available on this device` |
+| 2 | `pm enable com.google.android.wearable.app.cn` 后重试 | **成功**：`已连接的 Wear 节点: 1 / id=9940fa14 name=Galaxy Watch Ultra (0V4F)` |
+| 3 | 向 `/wearservices/sync/available_watchface` 发送 `{"version":1,"type":"available_watchface"}` | 手机侧 `ok=true`；手表侧 GMS 日志：`WearableService: Failed to deliver message to AppKey[...]; Event[onMessageReceived, action=/wearservices/sync/available_watchface, dataSize=42, source=20a3039]` |
+| 4 | 再次重启后重试 | 又回到 `API_UNAVAILABLE`，不可稳定复现 |
+
+**要点解读**
+
+1. **第三方 App 确实能用同一条 GMS 传输**（步骤 2/3 证明了），前提是本机存在可用的 Wear 伴侣后端。
+2. 消息**上行成功但投递失败**：手表端 GMS 收到了 `/wearservices/sync/available_watchface`，但手表上没有任何应用注册这个路径前缀，所以 GMS 无处投递 → 这条 MessageApi 路径在这台手表上是死路。
+3. CN 版 Wear OS 应用（2.68.201 CN）会明确把三星手表引导回 Galaxy Wearable：
+   `Wear3WatchActivity` 显示「您有 Samsung 手表吗？您可以使用 Galaxy Wearable 应用管理自己的手表」，
+   即 CN 固件上 Google 伴侣**不承担**三星手表的表盘管理职责。
+4. 海外 GMS 设备上的伴侣编辑器由 GMS 私有库承载
+   （`com.google.android.gms.internal.wear_companion`，4414 个混淆类，无可用字符串常量，
+   请求走 `IWearableService` + 私有 protobuf，非 MessageApi 路径），
+   且要求官方 Wear 伴侣完成配对。
+
+**结论**：在 CN 固件 + 非三星手机的既有形态下，**远程数据位/样式配置没有可用的技术路径**。
+表盘数据位仍须在手表上完成编辑；本项目保留上述诊断广播，便于将来换到海外 GMS 设备后继续探测。
+
 ### 6.4 通知桥接与即时下发协议
 * **通道规范**：Wear OS 原生 Bridger DataItem
 * **URI 格式**：`wear://<phoneNode>/bridger/stream_item:<notification_key_hash>`
