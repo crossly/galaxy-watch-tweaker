@@ -29,12 +29,3 @@ private/
 
 # Local code index
 .codegraph
-
-# Reverse engineering decompiled / binary cache
-research/apks/
-research/decompiled/
-research/*.log
-research/snoop/
-research/strings/
-research/feature_matrix.json
-
